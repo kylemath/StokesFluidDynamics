@@ -1,5 +1,7 @@
 # StokesFluidDynamics
 
+🚀 **[Live Demo](https://kylemath.github.io/StokesFluidDynamics)** 🚀
+
 Web demos of fluid dynamics concepts
 
 ## Getting Started
