@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6. Circulation & Flux | Stokes' Theorem</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <!-- p5.js -->
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="14" stroke="url(#logoGrad)" stroke-width="2"/>
+                    <path d="M10 16C10 16 13 12 16 12C19 12 22 16 22 16C22 16 19 20 16 20C13 20 10 16 10 16Z" 
+                          stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="16" cy="16" r="2" fill="#06b6d4"/>
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
+                            <stop stop-color="#06b6d4"/>
+                            <stop offset="1" stop-color="#3b82f6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>Stokes' Theorem</span>
+            </a>
+            
+            <button class="nav-mobile-toggle" onclick="toggleMobileNav()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 12h18M3 6h18M3 18h18"/>
+                </svg>
+            </button>
+            
+            <div class="nav-tabs" id="navTabs">
+                <a href="index.html" class="nav-tab"><span class="nav-tab-number">0</span>Home</a>
+                <a href="tab1-fluids.html" class="nav-tab"><span class="nav-tab-number">1</span>Fluids</a>
+                <a href="tab2-vectors.html" class="nav-tab"><span class="nav-tab-number">2</span>Vector Fields</a>
+                <a href="tab3-divergence.html" class="nav-tab"><span class="nav-tab-number">3</span>Divergence</a>
+                <a href="tab4-curl.html" class="nav-tab"><span class="nav-tab-number">4</span>Curl</a>
+                <a href="tab5-lineintegrals.html" class="nav-tab"><span class="nav-tab-number">5</span>Line Integrals</a>
+                <a href="tab6-circulation.html" class="nav-tab active"><span class="nav-tab-number">6</span>Circulation</a>
+                <a href="tab7-greens.html" class="nav-tab"><span class="nav-tab-number">7</span>Green's</a>
+                <a href="tab8-stokes.html" class="nav-tab"><span class="nav-tab-number">8</span>Stokes</a>
+                <a href="tab9-alternative.html" class="nav-tab"><span class="nav-tab-number">9</span>Alternative</a>
+                <a href="tab10-simulation.html" class="nav-tab"><span class="nav-tab-number">10</span>Simulation</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="section-header" style="margin-bottom: var(--space-2xl);">
+                <span class="section-label">Chapter 6</span>
+                <h1>Circulation & Flux</h1>
+                <p style="font-size: 1.1rem; max-width: 700px;">
+                    When we take a line integral around a <em>closed loop</em>, we get 
+                    <strong>circulation</strong>—a measure of how much the field pushes you around the loop.
+                </p>
+            </div>
+
+            <!-- Main Content -->
+            <div class="two-column">
+                <div class="explanation-column">
+                    <div class="section">
+                        <h2>What is Circulation?</h2>
+                        
+                        <p>
+                            <strong>Circulation</strong> is simply a line integral around a closed curve 
+                            (a loop that ends where it started).
+                        </p>
+                        
+                        <div class="definition-box">
+                            <div class="definition-box-title">Circulation</div>
+                            <p>
+                                For a closed curve $C$ (also written $\partial R$ for the boundary of region $R$):
+                            </p>
+                            <div id="circulation-formula"></div>
+                            <p style="margin-bottom: 0;">
+                                The circle on the integral sign ∮ indicates a closed loop.
+                            </p>
+                        </div>
+
+                        <div class="analogy-box">
+                            <div class="analogy-box-title">🚶 Walking Around a Block</div>
+                            <p style="margin-bottom: 0;">
+                                If you walk around a city block and the wind is blowing, circulation measures 
+                                the <em>net</em> effect: did the wind help you more than it hindered you overall?
+                                <br><br>
+                                <strong>Positive circulation:</strong> You're pushed counterclockwise around the loop.<br>
+                                <strong>Negative circulation:</strong> You're pushed clockwise.<br>
+                                <strong>Zero circulation:</strong> What helps on one side hurts equally on the other.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2>Circulation and Rotation</h2>
+                        
+                        <p>
+                            Here's the key insight: <strong>circulation is intimately connected to curl</strong>.
+                        </p>
+                        <ul>
+                            <li>If the field is rotating inside the loop (has curl), you'll feel a net push around.</li>
+                            <li>If the field has no rotation inside (zero curl everywhere), circulation is zero.</li>
+                        </ul>
+                        
+                        <p>
+                            This connection is exactly what <strong>Green's Theorem</strong> and 
+                            <strong>Stokes' Theorem</strong> make precise!
+                        </p>
+
+                        <div class="warning-box">
+                            <div style="font-weight: 600; color: var(--accent-danger); margin-bottom: var(--space-sm);">
+                                ⚠️ Convention Alert
+                            </div>
+                            <p style="margin-bottom: 0;">
+                                We always traverse closed curves <strong>counterclockwise</strong> (positive orientation). 
+                                This matches the convention that counterclockwise rotation = positive curl.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2>Flux: The Other Integral</h2>
+                        
+                        <p>
+                            While circulation measures flow <em>along</em> a boundary, 
+                            <strong>flux</strong> measures flow <em>across</em> it.
+                        </p>
+                        
+                        <div class="definition-box">
+                            <div class="definition-box-title">Flux (2D)</div>
+                            <p>
+                                For a closed curve $C$:
+                            </p>
+                            <div id="flux-formula"></div>
+                            <p style="margin-bottom: 0;">
+                                Here $\mathbf{n}$ is the outward-pointing normal to the curve. 
+                                Flux measures how much fluid crosses the boundary.
+                            </p>
+                        </div>
+
+                        <p>
+                            <strong>Positive flux:</strong> Net outward flow (more leaving than entering)<br>
+                            <strong>Negative flux:</strong> Net inward flow (more entering than leaving)<br>
+                            <strong>Zero flux:</strong> Inflow equals outflow
+                        </p>
+                    </div>
+
+                    <div class="section">
+                        <h2>Circulation vs. Flux</h2>
+                        
+                        <table style="width: 100%; border-collapse: collapse; margin: var(--space-lg) 0;">
+                            <tr style="border-bottom: 1px solid rgba(6, 182, 212, 0.2);">
+                                <th style="text-align: left; padding: var(--space-sm); color: var(--accent-primary);">Property</th>
+                                <th style="text-align: left; padding: var(--space-sm); color: var(--accent-primary);">Circulation</th>
+                                <th style="text-align: left; padding: var(--space-sm); color: var(--accent-primary);">Flux</th>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(6, 182, 212, 0.1);">
+                                <td style="padding: var(--space-sm);">Direction</td>
+                                <td style="padding: var(--space-sm);">Tangent to boundary</td>
+                                <td style="padding: var(--space-sm);">Normal to boundary</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(6, 182, 212, 0.1);">
+                                <td style="padding: var(--space-sm);">Measures</td>
+                                <td style="padding: var(--space-sm);">Rotation around loop</td>
+                                <td style="padding: var(--space-sm);">Flow through boundary</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(6, 182, 212, 0.1);">
+                                <td style="padding: var(--space-sm);">Related to</td>
+                                <td style="padding: var(--space-sm);">Curl (via Stokes)</td>
+                                <td style="padding: var(--space-sm);">Divergence (via Gauss)</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: var(--space-sm);">Formula</td>
+                                <td style="padding: var(--space-sm);">$\oint \mathbf{F} \cdot d\mathbf{r}$</td>
+                                <td style="padding: var(--space-sm);">$\oint \mathbf{F} \cdot \mathbf{n} \, ds$</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="section">
+                        <h2>The Stage is Set</h2>
+                        <p>
+                            We now have all the pieces:
+                        </p>
+                        <ul>
+                            <li><strong>Curl</strong> measures local rotation at a point</li>
+                            <li><strong>Circulation</strong> measures total "push around" a loop</li>
+                        </ul>
+                        <p>
+                            The big question: <em>How are they connected?</em>
+                        </p>
+                        <p>
+                            <strong>Green's Theorem</strong> (next chapter) tells us: the circulation around 
+                            a loop equals the total curl inside the region!
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <!-- Interactive Demo -->
+                    <div class="demo-container" style="position: sticky; top: 90px;">
+                        <div class="demo-header">
+                            <span class="demo-title">Interactive: Circulation Around Loops</span>
+                            <div class="demo-controls">
+                                <button class="btn btn-secondary" onclick="resetDemo()">Reset</button>
+                            </div>
+                        </div>
+                        <div class="demo-canvas" id="circulation-demo"></div>
+                        <div class="demo-footer">
+                            <div class="control-group">
+                                <div class="control-item">
+                                    <label class="control-label">Field Type</label>
+                                    <select id="field-type" onchange="updateFieldType(this.value)" 
+                                            style="width: 100%; padding: 8px; background: var(--bg-tertiary); 
+                                                   border: 1px solid rgba(6,182,212,0.2); border-radius: 6px; 
+                                                   color: var(--text-primary); cursor: pointer;">
+                                        <option value="rotation">Rotation (has curl)</option>
+                                        <option value="uniform">Uniform (no curl)</option>
+                                        <option value="radial">Radial (no curl)</option>
+                                        <option value="shear">Shear (has curl)</option>
+                                    </select>
+                                </div>
+                                <div class="control-item">
+                                    <label class="control-label">
+                                        Loop Radius: <span class="control-value" id="radius-value">80</span>
+                                    </label>
+                                    <input type="range" id="radius-slider" min="40" max="150" step="10" value="80"
+                                           oninput="updateRadius(this.value)">
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); margin-top: var(--space-md);">
+                                <div class="card" style="padding: var(--space-md); background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3);">
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Circulation</div>
+                                    <div id="circulation-value" style="font-size: 1.5rem; font-weight: 700; color: #10b981;">0.00</div>
+                                </div>
+                                <div class="card" style="padding: var(--space-md); background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3);">
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Avg Curl Inside</div>
+                                    <div id="curl-value" style="font-size: 1.5rem; font-weight: 700; color: #3b82f6;">0.00</div>
+                                </div>
+                            </div>
+                            <p style="margin-top: var(--space-md); font-size: 0.85rem; color: var(--text-muted);">
+                                <strong>Drag the loop:</strong> Move the circle around and watch how circulation 
+                                changes with position. Notice: circulation ≈ curl × area!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Takeaways -->
+            <div class="card" style="margin-top: var(--space-3xl);">
+                <h3>Key Takeaways</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span><strong>Circulation</strong> = line integral around a closed loop = $\oint \mathbf{F} \cdot d\mathbf{r}$</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span>Measures the net "push" around the loop (tangential flow).</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span><strong>Flux</strong> measures flow <em>across</em> the boundary (normal flow).</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span>Circulation is connected to <strong>curl inside</strong>—this is Green's/Stokes' Theorem!</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Page Navigation -->
+            <div class="page-nav">
+                <a href="tab5-lineintegrals.html" class="page-nav-link prev">
+                    <span class="page-nav-label">← Previous</span>
+                    <span class="page-nav-title">Line Integrals & Work</span>
+                </a>
+                <a href="tab7-greens.html" class="page-nav-link next">
+                    <span class="page-nav-label">Next →</span>
+                    <span class="page-nav-title">Green's Theorem (2D)</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/tab6-circulation.js"></script>
+    <script>
+        function toggleMobileNav() {
+            document.getElementById('navTabs').classList.toggle('open');
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            katex.render("\\text{Circulation} = \\oint_C \\mathbf{F} \\cdot d\\mathbf{r}", 
+                document.getElementById('circulation-formula'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            katex.render("\\text{Flux} = \\oint_C \\mathbf{F} \\cdot \\mathbf{n} \\, ds", 
+                document.getElementById('flux-formula'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+</html>
+
+

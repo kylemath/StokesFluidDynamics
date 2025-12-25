@@ -1,0 +1,11 @@
+{
+  "id": "StokesFluidDynamics",
+  "title": "StokesFluidDynamics",
+  "oneLiner": "Web demos of fluid dynamics concepts",
+  "demoUrl": "https://kylemath.github.io/StokesFluidDynamics",
+  "screenshot": "https://raw.githubusercontent.com/kylemath/StokesFluidDynamics/main/screenshot.png",
+  "kind": "project",
+  "categories": ["physics", "web demo", "fluid"],
+  "tags": ["physics", "web demo", "fluid"],
+  "status": "published"
+}

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2. Vector Fields & Flow | Stokes' Theorem</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <!-- p5.js -->
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="14" stroke="url(#logoGrad)" stroke-width="2"/>
+                    <path d="M10 16C10 16 13 12 16 12C19 12 22 16 22 16C22 16 19 20 16 20C13 20 10 16 10 16Z" 
+                          stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="16" cy="16" r="2" fill="#06b6d4"/>
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
+                            <stop stop-color="#06b6d4"/>
+                            <stop offset="1" stop-color="#3b82f6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>Stokes' Theorem</span>
+            </a>
+            
+            <button class="nav-mobile-toggle" onclick="toggleMobileNav()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 12h18M3 6h18M3 18h18"/>
+                </svg>
+            </button>
+            
+            <div class="nav-tabs" id="navTabs">
+                <a href="index.html" class="nav-tab"><span class="nav-tab-number">0</span>Home</a>
+                <a href="tab1-fluids.html" class="nav-tab"><span class="nav-tab-number">1</span>Fluids</a>
+                <a href="tab2-vectors.html" class="nav-tab active"><span class="nav-tab-number">2</span>Vector Fields</a>
+                <a href="tab3-divergence.html" class="nav-tab"><span class="nav-tab-number">3</span>Divergence</a>
+                <a href="tab4-curl.html" class="nav-tab"><span class="nav-tab-number">4</span>Curl</a>
+                <a href="tab5-lineintegrals.html" class="nav-tab"><span class="nav-tab-number">5</span>Line Integrals</a>
+                <a href="tab6-circulation.html" class="nav-tab"><span class="nav-tab-number">6</span>Circulation</a>
+                <a href="tab7-greens.html" class="nav-tab"><span class="nav-tab-number">7</span>Green's</a>
+                <a href="tab8-stokes.html" class="nav-tab"><span class="nav-tab-number">8</span>Stokes</a>
+                <a href="tab9-alternative.html" class="nav-tab"><span class="nav-tab-number">9</span>Alternative</a>
+                <a href="tab10-simulation.html" class="nav-tab"><span class="nav-tab-number">10</span>Simulation</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="section-header" style="margin-bottom: var(--space-2xl);">
+                <span class="section-label">Chapter 2</span>
+                <h1>Vector Fields & Flow</h1>
+                <p style="font-size: 1.1rem; max-width: 700px;">
+                    How do we describe where a fluid is going at every point in space? 
+                    We use <strong>vector fields</strong>: a collection of arrows showing direction and speed.
+                </p>
+            </div>
+
+            <!-- Main Content -->
+            <div class="two-column">
+                <div class="explanation-column">
+                    <div class="section">
+                        <h2>What is a Vector?</h2>
+                        
+                        <p>
+                            A <strong>vector</strong> is simply a quantity that has both a 
+                            <em>magnitude</em> (size/length) and a <em>direction</em>.
+                        </p>
+                        
+                        <div class="definition-box">
+                            <div class="definition-box-title">Vector (Simple Definition)</div>
+                            <p style="margin-bottom: 0;">
+                                Think of a vector as an arrow: it points somewhere (direction) 
+                                and has a length (magnitude). We write vectors as $\mathbf{v} = (v_x, v_y)$ 
+                                where $v_x$ is the horizontal component and $v_y$ is the vertical component.
+                            </p>
+                        </div>
+
+                        <p>
+                            For fluid flow, we care about <strong>velocity vectors</strong>: 
+                            at each point in space, the vector tells us which way the fluid is moving 
+                            and how fast.
+                        </p>
+
+                        <div class="math-block">
+                            <span id="vector-formula"></span>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2>What is a Vector Field?</h2>
+                        
+                        <p>
+                            A <strong>vector field</strong> assigns a vector to every point in space. 
+                            Imagine placing a tiny arrow at every location—that's a vector field!
+                        </p>
+
+                        <div class="definition-box">
+                            <div class="definition-box-title">Vector Field (Formal)</div>
+                            <p>
+                                A vector field $\mathbf{F}$ is a function that takes a position $(x, y)$ 
+                                and returns a vector:
+                            </p>
+                            <div id="field-formula"></div>
+                        </div>
+
+                        <p>
+                            In the demo, you can switch between different types of vector fields:
+                        </p>
+                        <ul>
+                            <li><strong>Uniform:</strong> Same flow everywhere (like wind on a calm day)</li>
+                            <li><strong>Rotational:</strong> Fluid spinning around a point (like a whirlpool)</li>
+                            <li><strong>Source:</strong> Fluid spreading out from a point (like a fountain)</li>
+                            <li><strong>Sink:</strong> Fluid collecting toward a point (like a drain)</li>
+                        </ul>
+                    </div>
+
+                    <div class="section">
+                        <h2>Streamlines, Pathlines, and Streaklines</h2>
+                        
+                        <p>There are different ways to visualize flow:</p>
+                        
+                        <h3>Streamlines</h3>
+                        <p>
+                            Curves that are everywhere tangent to the velocity field at a single instant. 
+                            Think of them as the paths fluid would take if the flow were frozen in time.
+                        </p>
+
+                        <h3>Pathlines</h3>
+                        <p>
+                            The actual path a single particle traces as it moves through the fluid over time. 
+                            The particles in our demo trace pathlines!
+                        </p>
+
+                        <h3>Streaklines</h3>
+                        <p>
+                            If you injected dye at a point, the streakline is where all the dyed particles 
+                            would be at a given moment.
+                        </p>
+
+                        <div class="tip-box">
+                            <div style="font-weight: 600; color: var(--accent-success); margin-bottom: var(--space-sm);">
+                                💡 Steady vs. Unsteady Flow
+                            </div>
+                            <p style="margin-bottom: 0;">
+                                For <strong>steady flow</strong> (where the field doesn't change over time), 
+                                streamlines, pathlines, and streaklines are all the same! 
+                                Our demo shows steady flow for clarity.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2>Why Vector Fields Matter</h2>
+                        <p>
+                            Vector fields are the language we'll use to describe everything in this course:
+                        </p>
+                        <ul>
+                            <li><strong>Divergence</strong> will measure how much the field "spreads out"</li>
+                            <li><strong>Curl</strong> will measure how much the field "rotates"</li>
+                            <li><strong>Line integrals</strong> will add up the field along paths</li>
+                            <li><strong>Stokes' Theorem</strong> will connect all these ideas beautifully!</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div>
+                    <!-- Interactive Demo -->
+                    <div class="demo-container" style="position: sticky; top: 90px;">
+                        <div class="demo-header">
+                            <span class="demo-title">Interactive: Vector Fields</span>
+                            <div class="demo-controls">
+                                <button class="btn btn-secondary" onclick="resetDemo()">Reset</button>
+                            </div>
+                        </div>
+                        <div class="demo-canvas" id="vector-demo"></div>
+                        <div class="demo-footer">
+                            <div class="control-group">
+                                <div class="control-item">
+                                    <label class="control-label">Field Type</label>
+                                    <select id="field-type" onchange="updateFieldType(this.value)" 
+                                            style="width: 100%; padding: 8px; background: var(--bg-tertiary); 
+                                                   border: 1px solid rgba(6,182,212,0.2); border-radius: 6px; 
+                                                   color: var(--text-primary); cursor: pointer;">
+                                        <option value="uniform">Uniform Flow</option>
+                                        <option value="rotation">Rotational (Vortex)</option>
+                                        <option value="source">Source (Spreading)</option>
+                                        <option value="sink">Sink (Converging)</option>
+                                        <option value="saddle">Saddle Point</option>
+                                        <option value="shear">Shear Flow</option>
+                                    </select>
+                                </div>
+                                <div class="control-item">
+                                    <label class="control-label">
+                                        Field Strength: <span class="control-value" id="strength-value">1.0</span>
+                                    </label>
+                                    <input type="range" id="strength-slider" min="0.2" max="3" step="0.1" value="1"
+                                           oninput="updateStrength(this.value)">
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <div class="control-item">
+                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                        <input type="checkbox" id="show-particles" checked 
+                                               onchange="toggleParticles(this.checked)"
+                                               style="width: 18px; height: 18px; cursor: pointer;">
+                                        <span style="font-size: 0.9rem; color: var(--text-secondary);">Show Particles</span>
+                                    </label>
+                                </div>
+                                <div class="control-item">
+                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                        <input type="checkbox" id="show-vectors" checked 
+                                               onchange="toggleVectors(this.checked)"
+                                               style="width: 18px; height: 18px; cursor: pointer;">
+                                        <span style="font-size: 0.9rem; color: var(--text-secondary);">Show Vectors</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <p style="margin-top: var(--space-md); font-size: 0.85rem; color: var(--text-muted);">
+                                <strong>Explore:</strong> Switch between field types and watch how particles 
+                                follow the arrows. Each field has distinct behavior!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Takeaways -->
+            <div class="card" style="margin-top: var(--space-3xl);">
+                <h3>Key Takeaways</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span>A <strong>vector</strong> has magnitude (length) and direction—like an arrow.</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span>A <strong>vector field</strong> assigns a vector to every point in space.</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span>Different field types create different flow patterns: uniform, rotational, source, sink.</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span>Particles follow the vector field, tracing out <strong>pathlines</strong>.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Page Navigation -->
+            <div class="page-nav">
+                <a href="tab1-fluids.html" class="page-nav-link prev">
+                    <span class="page-nav-label">← Previous</span>
+                    <span class="page-nav-title">What is a Fluid?</span>
+                </a>
+                <a href="tab3-divergence.html" class="page-nav-link next">
+                    <span class="page-nav-label">Next →</span>
+                    <span class="page-nav-title">Divergence: Sources & Sinks</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/tab2-vectors.js"></script>
+    <script>
+        function toggleMobileNav() {
+            document.getElementById('navTabs').classList.toggle('open');
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            katex.render("\\mathbf{v} = (v_x, v_y) \\quad \\text{or} \\quad \\mathbf{v} = v_x\\hat{\\mathbf{i}} + v_y\\hat{\\mathbf{j}}", 
+                document.getElementById('vector-formula'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            katex.render("\\mathbf{F}(x, y) = \\begin{pmatrix} F_x(x,y) \\\\ F_y(x,y) \\end{pmatrix}", 
+                document.getElementById('field-formula'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+</html>
+
+

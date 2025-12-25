@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4. Curl: Rotation & Spin | Stokes' Theorem</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <!-- p5.js -->
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="14" stroke="url(#logoGrad)" stroke-width="2"/>
+                    <path d="M10 16C10 16 13 12 16 12C19 12 22 16 22 16C22 16 19 20 16 20C13 20 10 16 10 16Z" 
+                          stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="16" cy="16" r="2" fill="#06b6d4"/>
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
+                            <stop stop-color="#06b6d4"/>
+                            <stop offset="1" stop-color="#3b82f6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>Stokes' Theorem</span>
+            </a>
+            
+            <button class="nav-mobile-toggle" onclick="toggleMobileNav()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 12h18M3 6h18M3 18h18"/>
+                </svg>
+            </button>
+            
+            <div class="nav-tabs" id="navTabs">
+                <a href="index.html" class="nav-tab"><span class="nav-tab-number">0</span>Home</a>
+                <a href="tab1-fluids.html" class="nav-tab"><span class="nav-tab-number">1</span>Fluids</a>
+                <a href="tab2-vectors.html" class="nav-tab"><span class="nav-tab-number">2</span>Vector Fields</a>
+                <a href="tab3-divergence.html" class="nav-tab"><span class="nav-tab-number">3</span>Divergence</a>
+                <a href="tab4-curl.html" class="nav-tab active"><span class="nav-tab-number">4</span>Curl</a>
+                <a href="tab5-lineintegrals.html" class="nav-tab"><span class="nav-tab-number">5</span>Line Integrals</a>
+                <a href="tab6-circulation.html" class="nav-tab"><span class="nav-tab-number">6</span>Circulation</a>
+                <a href="tab7-greens.html" class="nav-tab"><span class="nav-tab-number">7</span>Green's</a>
+                <a href="tab8-stokes.html" class="nav-tab"><span class="nav-tab-number">8</span>Stokes</a>
+                <a href="tab9-alternative.html" class="nav-tab"><span class="nav-tab-number">9</span>Alternative</a>
+                <a href="tab10-simulation.html" class="nav-tab"><span class="nav-tab-number">10</span>Simulation</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="section-header" style="margin-bottom: var(--space-2xl);">
+                <span class="section-label">Chapter 4</span>
+                <h1>Curl: Rotation & Spin</h1>
+                <p style="font-size: 1.1rem; max-width: 700px;">
+                    While divergence measures spreading, <strong>curl</strong> measures spinning. 
+                    If you placed a tiny paddle wheel in the flow, which way would it rotate?
+                </p>
+            </div>
+
+            <!-- Main Content -->
+            <div class="two-column">
+                <div class="explanation-column">
+                    <div class="section">
+                        <h2>The Paddle Wheel Test</h2>
+                        
+                        <p>
+                            Imagine dropping a tiny paddle wheel (like a pinwheel) into a flowing fluid. 
+                            The <strong>curl</strong> at that point tells you:
+                        </p>
+                        <ul>
+                            <li>Which direction the paddle wheel would spin</li>
+                            <li>How fast it would spin</li>
+                        </ul>
+                        
+                        <div class="analogy-box">
+                            <div class="analogy-box-title">🎡 The Paddle Wheel Analogy</div>
+                            <p style="margin-bottom: 0;">
+                                <strong>Positive curl:</strong> Paddle wheel spins counterclockwise (by convention, this is "positive" rotation).<br><br>
+                                <strong>Negative curl:</strong> Paddle wheel spins clockwise.<br><br>
+                                <strong>Zero curl:</strong> Paddle wheel doesn't spin—even if the fluid is moving!
+                            </p>
+                        </div>
+
+                        <div class="warning-box">
+                            <div style="font-weight: 600; color: var(--accent-danger); margin-bottom: var(--space-sm);">
+                                ⚠️ Key Insight
+                            </div>
+                            <p style="margin-bottom: 0;">
+                                A fluid can be moving in curves without having curl! Curl measures 
+                                <strong>local</strong> rotation—whether the fluid would make a paddle wheel 
+                                spin at that exact point.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2>The Mathematical Definition</h2>
+                        
+                        <div class="definition-box">
+                            <div class="definition-box-title">Curl (∇ × F) in 2D</div>
+                            <p>
+                                For a 2D vector field $\mathbf{F} = (F_x, F_y)$, the curl (which points 
+                                out of the page) has magnitude:
+                            </p>
+                            <div id="curl-formula"></div>
+                            <p style="margin-bottom: 0;">
+                                In words: curl is the difference between how $F_y$ changes horizontally 
+                                and how $F_x$ changes vertically.
+                            </p>
+                        </div>
+
+                        <h3>Why This Formula?</h3>
+                        <p>
+                            Think about what makes a paddle wheel spin:
+                        </p>
+                        <ul>
+                            <li>If the vertical component ($F_y$) is larger on the right than the left, 
+                                the right side of the paddle gets pushed up more → counterclockwise spin</li>
+                            <li>If the horizontal component ($F_x$) is larger above than below, 
+                                the top of the paddle gets pushed right more → clockwise spin</li>
+                        </ul>
+                        <p>
+                            The curl formula captures this asymmetry: $\frac{\partial F_y}{\partial x} - \frac{\partial F_x}{\partial y}$
+                        </p>
+                    </div>
+
+                    <div class="section">
+                        <h2>In 3D: The Full Curl</h2>
+                        
+                        <p>
+                            In three dimensions, curl is a full vector (not just a number). 
+                            It points in the direction of the rotation axis, with magnitude equal to rotation speed.
+                        </p>
+                        
+                        <div class="math-block">
+                            <span id="curl-3d-formula"></span>
+                        </div>
+                        
+                        <p>
+                            In 2D, we only have the z-component (pointing out of the screen), which is what we showed above.
+                        </p>
+                    </div>
+
+                    <div class="section">
+                        <h2>Examples</h2>
+                        
+                        <h3>Pure Rotation: $\mathbf{F} = (-y, x)$</h3>
+                        <p>
+                            This field circles counterclockwise around the origin. The curl is:
+                            $\nabla \times \mathbf{F} = \frac{\partial x}{\partial x} - \frac{\partial(-y)}{\partial y} = 1 - (-1) = 2$
+                        </p>
+                        <p>Constant positive curl everywhere—uniform rotation!</p>
+                        
+                        <h3>Shear Flow: $\mathbf{F} = (y, 0)$</h3>
+                        <p>
+                            Fluid moves faster at the top than the bottom (like wind gradient). The curl is:
+                            $\nabla \times \mathbf{F} = 0 - 1 = -1$
+                        </p>
+                        <p>Constant negative curl—the shear creates clockwise rotation!</p>
+                        
+                        <h3>Uniform Flow: $\mathbf{F} = (1, 0)$</h3>
+                        <p>
+                            Same velocity everywhere. The curl is $0 - 0 = 0$. No rotation!
+                        </p>
+                    </div>
+
+                    <div class="section">
+                        <h2>Curl vs. Divergence</h2>
+                        <p>
+                            These are complementary operators:
+                        </p>
+                        <table style="width: 100%; border-collapse: collapse; margin: var(--space-lg) 0;">
+                            <tr style="border-bottom: 1px solid rgba(6, 182, 212, 0.2);">
+                                <th style="text-align: left; padding: var(--space-sm); color: var(--accent-primary);">Property</th>
+                                <th style="text-align: left; padding: var(--space-sm); color: var(--accent-primary);">Divergence</th>
+                                <th style="text-align: left; padding: var(--space-sm); color: var(--accent-primary);">Curl</th>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(6, 182, 212, 0.1);">
+                                <td style="padding: var(--space-sm);">Measures</td>
+                                <td style="padding: var(--space-sm);">Spreading/collecting</td>
+                                <td style="padding: var(--space-sm);">Rotation/spinning</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(6, 182, 212, 0.1);">
+                                <td style="padding: var(--space-sm);">Physical meaning</td>
+                                <td style="padding: var(--space-sm);">Sources & sinks</td>
+                                <td style="padding: var(--space-sm);">Vortices & swirls</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: var(--space-sm);">Output type (2D)</td>
+                                <td style="padding: var(--space-sm);">Scalar (number)</td>
+                                <td style="padding: var(--space-sm);">Scalar (number)*</td>
+                            </tr>
+                        </table>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">
+                            *In 3D, curl is a vector, but in 2D it's effectively a scalar pointing "out of the page."
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <!-- Interactive Demo -->
+                    <div class="demo-container" style="position: sticky; top: 90px;">
+                        <div class="demo-header">
+                            <span class="demo-title">Interactive: Curl & Paddle Wheels</span>
+                            <div class="demo-controls">
+                                <button class="btn btn-secondary" onclick="resetDemo()">Reset</button>
+                            </div>
+                        </div>
+                        <div class="demo-canvas" id="curl-demo"></div>
+                        <div class="demo-footer">
+                            <div class="control-group">
+                                <div class="control-item">
+                                    <label class="control-label">Field Type</label>
+                                    <select id="field-type" onchange="updateFieldType(this.value)" 
+                                            style="width: 100%; padding: 8px; background: var(--bg-tertiary); 
+                                                   border: 1px solid rgba(6,182,212,0.2); border-radius: 6px; 
+                                                   color: var(--text-primary); cursor: pointer;">
+                                        <option value="rotation">Pure Rotation (CCW)</option>
+                                        <option value="rotation-cw">Pure Rotation (CW)</option>
+                                        <option value="shear">Shear Flow</option>
+                                        <option value="uniform">Uniform (No Curl)</option>
+                                        <option value="vortex">Point Vortex</option>
+                                        <option value="custom">Custom (Click to add)</option>
+                                    </select>
+                                </div>
+                                <div class="control-item">
+                                    <label class="control-label">
+                                        Field Strength: <span class="control-value" id="strength-value">1.0</span>
+                                    </label>
+                                    <input type="range" id="strength-slider" min="0.2" max="2" step="0.1" value="1"
+                                           oninput="updateStrength(this.value)">
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <div class="control-item">
+                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                        <input type="checkbox" id="show-paddles" checked 
+                                               onchange="togglePaddles(this.checked)"
+                                               style="width: 18px; height: 18px; cursor: pointer;">
+                                        <span style="font-size: 0.9rem; color: var(--text-secondary);">Show Paddle Wheels</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="vector-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color color-curl-positive"></div>
+                                    <span>Positive curl (CCW)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color color-curl-negative"></div>
+                                    <span>Negative curl (CW)</span>
+                                </div>
+                            </div>
+                            <p style="margin-top: var(--space-md); font-size: 0.85rem; color: var(--text-muted);">
+                                <strong>Watch:</strong> See how the paddle wheels spin! Green = counterclockwise (positive), 
+                                Orange = clockwise (negative). Larger = faster spin.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Takeaways -->
+            <div class="card" style="margin-top: var(--space-3xl);">
+                <h3>Key Takeaways</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span><strong>Curl</strong> measures local rotation—would a paddle wheel spin here?</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span>Formula (2D): $\nabla \times \mathbf{F} = \frac{\partial F_y}{\partial x} - \frac{\partial F_x}{\partial y}$</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span>Positive curl = counterclockwise spin, Negative = clockwise, Zero = no spin.</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span>Curl is the key concept for <strong>Stokes' Theorem</strong>—we'll connect it to circulation soon!</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Page Navigation -->
+            <div class="page-nav">
+                <a href="tab3-divergence.html" class="page-nav-link prev">
+                    <span class="page-nav-label">← Previous</span>
+                    <span class="page-nav-title">Divergence: Sources & Sinks</span>
+                </a>
+                <a href="tab5-lineintegrals.html" class="page-nav-link next">
+                    <span class="page-nav-label">Next →</span>
+                    <span class="page-nav-title">Line Integrals & Work</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/tab4-curl.js"></script>
+    <script>
+        function toggleMobileNav() {
+            document.getElementById('navTabs').classList.toggle('open');
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            katex.render("(\\nabla \\times \\mathbf{F})_z = \\frac{\\partial F_y}{\\partial x} - \\frac{\\partial F_x}{\\partial y}", 
+                document.getElementById('curl-formula'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            katex.render("\\nabla \\times \\mathbf{F} = \\begin{vmatrix} \\hat{i} & \\hat{j} & \\hat{k} \\\\ \\frac{\\partial}{\\partial x} & \\frac{\\partial}{\\partial y} & \\frac{\\partial}{\\partial z} \\\\ F_x & F_y & F_z \\end{vmatrix}", 
+                document.getElementById('curl-3d-formula'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+</html>
+
+

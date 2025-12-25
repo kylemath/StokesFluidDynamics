@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7. Green's Theorem (2D) | Stokes' Theorem</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <!-- p5.js -->
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="14" stroke="url(#logoGrad)" stroke-width="2"/>
+                    <path d="M10 16C10 16 13 12 16 12C19 12 22 16 22 16C22 16 19 20 16 20C13 20 10 16 10 16Z" 
+                          stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="16" cy="16" r="2" fill="#06b6d4"/>
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
+                            <stop stop-color="#06b6d4"/>
+                            <stop offset="1" stop-color="#3b82f6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>Stokes' Theorem</span>
+            </a>
+            
+            <button class="nav-mobile-toggle" onclick="toggleMobileNav()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 12h18M3 6h18M3 18h18"/>
+                </svg>
+            </button>
+            
+            <div class="nav-tabs" id="navTabs">
+                <a href="index.html" class="nav-tab"><span class="nav-tab-number">0</span>Home</a>
+                <a href="tab1-fluids.html" class="nav-tab"><span class="nav-tab-number">1</span>Fluids</a>
+                <a href="tab2-vectors.html" class="nav-tab"><span class="nav-tab-number">2</span>Vector Fields</a>
+                <a href="tab3-divergence.html" class="nav-tab"><span class="nav-tab-number">3</span>Divergence</a>
+                <a href="tab4-curl.html" class="nav-tab"><span class="nav-tab-number">4</span>Curl</a>
+                <a href="tab5-lineintegrals.html" class="nav-tab"><span class="nav-tab-number">5</span>Line Integrals</a>
+                <a href="tab6-circulation.html" class="nav-tab"><span class="nav-tab-number">6</span>Circulation</a>
+                <a href="tab7-greens.html" class="nav-tab active"><span class="nav-tab-number">7</span>Green's</a>
+                <a href="tab8-stokes.html" class="nav-tab"><span class="nav-tab-number">8</span>Stokes</a>
+                <a href="tab9-alternative.html" class="nav-tab"><span class="nav-tab-number">9</span>Alternative</a>
+                <a href="tab10-simulation.html" class="nav-tab"><span class="nav-tab-number">10</span>Simulation</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="section-header" style="margin-bottom: var(--space-2xl);">
+                <span class="section-label">Chapter 7</span>
+                <h1>Green's Theorem (2D)</h1>
+                <p style="font-size: 1.1rem; max-width: 700px;">
+                    The first major theorem: <strong>circulation around a boundary equals the total curl inside</strong>. 
+                    This is Stokes' Theorem in flatland!
+                </p>
+            </div>
+
+            <!-- Main Content -->
+            <div class="two-column">
+                <div class="explanation-column">
+                    <div class="section">
+                        <h2>The Big Reveal</h2>
+                        
+                        <p>
+                            Green's Theorem connects everything we've learned:
+                        </p>
+                        
+                        <div class="definition-box">
+                            <div class="definition-box-title">Green's Theorem (Circulation Form)</div>
+                            <p>
+                                For a region $R$ with boundary curve $\partial R$ (traversed counterclockwise):
+                            </p>
+                            <div id="greens-formula"></div>
+                            <p style="margin-bottom: 0;">
+                                <strong>Left side:</strong> Circulation around the boundary<br>
+                                <strong>Right side:</strong> Total curl inside the region
+                            </p>
+                        </div>
+
+                        <div class="analogy-box">
+                            <div class="analogy-box-title">🏊 The Swimming Pool Analogy</div>
+                            <p style="margin-bottom: 0;">
+                                Imagine a swimming pool with rotating water. If you want to know how much 
+                                the water pushes you around the edge, you could:
+                                <br><br>
+                                <strong>Option 1:</strong> Walk around the entire edge and measure the push (circulation).<br>
+                                <strong>Option 2:</strong> Drop paddle wheels everywhere inside and sum up their rotations (curl integral).<br>
+                                <br>
+                                Green's Theorem says these give the <em>same answer</em>!
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2>Why Is This True?</h2>
+                        
+                        <p>
+                            The intuition comes from <strong>cancellation</strong>:
+                        </p>
+                        
+                        <ol>
+                            <li>Divide the region into tiny squares</li>
+                            <li>Each tiny square has its own circulation (from its local curl)</li>
+                            <li>Adjacent squares share edges—the flow along shared edges <em>cancels out</em></li>
+                            <li>Only the outer boundary remains!</li>
+                        </ol>
+
+                        <div class="tip-box">
+                            <div style="font-weight: 600; color: var(--accent-success); margin-bottom: var(--space-sm);">
+                                💡 The Cancellation Principle
+                            </div>
+                            <p style="margin-bottom: 0;">
+                                When two squares share an edge, one traverses it left-to-right, 
+                                the other right-to-left. These contributions cancel, leaving only the 
+                                exterior boundary.
+                            </p>
+                        </div>
+
+                        <p>
+                            In the demo, you can see this: we sum up curl over many small cells, 
+                            and it matches the circulation we compute around the boundary!
+                        </p>
+                    </div>
+
+                    <div class="section">
+                        <h2>The Divergence Form</h2>
+                        
+                        <p>
+                            There's also a version for <strong>flux</strong> and <strong>divergence</strong>:
+                        </p>
+                        
+                        <div class="definition-box">
+                            <div class="definition-box-title">Green's Theorem (Flux/Divergence Form)</div>
+                            <div id="greens-div-formula"></div>
+                            <p style="margin-bottom: 0;">
+                                <strong>Left side:</strong> Flux through the boundary<br>
+                                <strong>Right side:</strong> Total divergence inside
+                            </p>
+                        </div>
+
+                        <p>
+                            This says: the net outward flow through the boundary equals 
+                            the total "source strength" inside. Makes sense—if there are 
+                            sources inside, fluid has to leave somewhere!
+                        </p>
+                    </div>
+
+                    <div class="section">
+                        <h2>Mathematical Details</h2>
+                        
+                        <p>
+                            Written out fully for $\mathbf{F} = (P, Q)$:
+                        </p>
+                        
+                        <div class="math-block">
+                            <span id="greens-expanded"></span>
+                        </div>
+                        
+                        <h3>Requirements</h3>
+                        <ul>
+                            <li>The region $R$ must be "simply connected" (no holes)</li>
+                            <li>The boundary must be traversed counterclockwise</li>
+                            <li>$P$ and $Q$ must have continuous partial derivatives</li>
+                        </ul>
+
+                        <h3>With Holes</h3>
+                        <p>
+                            If the region has holes, traverse each hole clockwise (so all boundaries 
+                            keep the region "on the left"). The theorem still works!
+                        </p>
+                    </div>
+
+                    <div class="section">
+                        <h2>Applications</h2>
+                        
+                        <h3>Computing Area</h3>
+                        <p>
+                            Choose $P = 0, Q = x$ or $P = -y, Q = 0$. Then:
+                        </p>
+                        <div class="math-block">
+                            <span id="area-formula"></span>
+                        </div>
+                        <p>
+                            You can compute area by walking around the boundary!
+                        </p>
+
+                        <h3>Conservative Fields</h3>
+                        <p>
+                            If curl is zero everywhere, circulation around any loop is zero. 
+                            This means the field is <strong>conservative</strong>—work done depends 
+                            only on endpoints, not path.
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <!-- Interactive Demo -->
+                    <div class="demo-container" style="position: sticky; top: 90px;">
+                        <div class="demo-header">
+                            <span class="demo-title">Interactive: Green's Theorem Verification</span>
+                            <div class="demo-controls">
+                                <button class="btn btn-secondary" onclick="resetDemo()">Reset</button>
+                            </div>
+                        </div>
+                        <div class="demo-canvas" id="greens-demo"></div>
+                        <div class="demo-footer">
+                            <div class="control-group">
+                                <div class="control-item">
+                                    <label class="control-label">Field Type</label>
+                                    <select id="field-type" onchange="updateFieldType(this.value)" 
+                                            style="width: 100%; padding: 8px; background: var(--bg-tertiary); 
+                                                   border: 1px solid rgba(6,182,212,0.2); border-radius: 6px; 
+                                                   color: var(--text-primary); cursor: pointer;">
+                                        <option value="rotation">Rotation (constant curl)</option>
+                                        <option value="shear">Shear (constant curl)</option>
+                                        <option value="vortex">Vortex (varying curl)</option>
+                                        <option value="uniform">Uniform (zero curl)</option>
+                                    </select>
+                                </div>
+                                <div class="control-item">
+                                    <label class="control-label">
+                                        Grid Resolution: <span class="control-value" id="grid-value">10</span>
+                                    </label>
+                                    <input type="range" id="grid-slider" min="5" max="25" step="5" value="10"
+                                           oninput="updateGrid(this.value)">
+                                </div>
+                            </div>
+                            
+                            <!-- Results comparison -->
+                            <div style="background: var(--bg-secondary); border-radius: var(--radius-md); padding: var(--space-md); margin-top: var(--space-md);">
+                                <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: var(--space-sm); align-items: center;">
+                                    <div style="text-align: center;">
+                                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Boundary Integral</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">∮ F·dr</div>
+                                        <div id="boundary-value" style="font-size: 1.3rem; font-weight: 700; color: #a855f7;">0.00</div>
+                                    </div>
+                                    <div style="font-size: 1.5rem; color: var(--accent-primary);">=</div>
+                                    <div style="text-align: center;">
+                                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Area Integral</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">∬ curl(F) dA</div>
+                                        <div id="area-int-value" style="font-size: 1.3rem; font-weight: 700; color: #10b981;">0.00</div>
+                                    </div>
+                                </div>
+                                <div id="match-indicator" style="text-align: center; margin-top: var(--space-sm); font-size: 0.85rem; font-weight: 600; color: #10b981;">
+                                    ✓ Green's Theorem verified!
+                                </div>
+                            </div>
+                            
+                            <p style="margin-top: var(--space-md); font-size: 0.85rem; color: var(--text-muted);">
+                                <strong>Watch:</strong> The boundary circulation (purple) equals the sum of 
+                                curl cells inside (green = positive, orange = negative).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Takeaways -->
+            <div class="card" style="margin-top: var(--space-3xl);">
+                <h3>Key Takeaways</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span><strong>Green's Theorem:</strong> $\oint_{\partial R} \mathbf{F} \cdot d\mathbf{r} = \iint_R (\nabla \times \mathbf{F}) \, dA$</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span>Circulation around boundary = total curl inside.</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span>Works because adjacent cells' contributions cancel—only boundary survives.</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span>This is <strong>Stokes' Theorem in 2D</strong>—next we go to 3D!</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Page Navigation -->
+            <div class="page-nav">
+                <a href="tab6-circulation.html" class="page-nav-link prev">
+                    <span class="page-nav-label">← Previous</span>
+                    <span class="page-nav-title">Circulation & Flux</span>
+                </a>
+                <a href="tab8-stokes.html" class="page-nav-link next">
+                    <span class="page-nav-label">Next →</span>
+                    <span class="page-nav-title">Stokes' Theorem (3D)</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/tab7-greens.js"></script>
+    <script>
+        function toggleMobileNav() {
+            document.getElementById('navTabs').classList.toggle('open');
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            katex.render("\\oint_{\\partial R} \\mathbf{F} \\cdot d\\mathbf{r} = \\iint_R (\\nabla \\times \\mathbf{F}) \\, dA", 
+                document.getElementById('greens-formula'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            katex.render("\\oint_{\\partial R} \\mathbf{F} \\cdot \\mathbf{n} \\, ds = \\iint_R (\\nabla \\cdot \\mathbf{F}) \\, dA", 
+                document.getElementById('greens-div-formula'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            katex.render("\\oint_C P\\,dx + Q\\,dy = \\iint_R \\left( \\frac{\\partial Q}{\\partial x} - \\frac{\\partial P}{\\partial y} \\right) dA", 
+                document.getElementById('greens-expanded'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            katex.render("\\text{Area} = \\frac{1}{2} \\oint_C (x\\,dy - y\\,dx)", 
+                document.getElementById('area-formula'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+</html>
+
+

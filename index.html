@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stokes' Theorem: A Visual Journey Through Fluid Dynamics</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- KaTeX for Math -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="14" stroke="url(#logoGrad)" stroke-width="2"/>
+                    <path d="M10 16C10 16 13 12 16 12C19 12 22 16 22 16C22 16 19 20 16 20C13 20 10 16 10 16Z" 
+                          stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="16" cy="16" r="2" fill="#06b6d4"/>
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
+                            <stop stop-color="#06b6d4"/>
+                            <stop offset="1" stop-color="#3b82f6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>Stokes' Theorem</span>
+            </a>
+            
+            <button class="nav-mobile-toggle" onclick="toggleMobileNav()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 12h18M3 6h18M3 18h18"/>
+                </svg>
+            </button>
+            
+            <div class="nav-tabs" id="navTabs">
+                <a href="index.html" class="nav-tab active">
+                    <span class="nav-tab-number">0</span>
+                    Home
+                </a>
+                <a href="tab1-fluids.html" class="nav-tab">
+                    <span class="nav-tab-number">1</span>
+                    Fluids
+                </a>
+                <a href="tab2-vectors.html" class="nav-tab">
+                    <span class="nav-tab-number">2</span>
+                    Vector Fields
+                </a>
+                <a href="tab3-divergence.html" class="nav-tab">
+                    <span class="nav-tab-number">3</span>
+                    Divergence
+                </a>
+                <a href="tab4-curl.html" class="nav-tab">
+                    <span class="nav-tab-number">4</span>
+                    Curl
+                </a>
+                <a href="tab5-lineintegrals.html" class="nav-tab">
+                    <span class="nav-tab-number">5</span>
+                    Line Integrals
+                </a>
+                <a href="tab6-circulation.html" class="nav-tab">
+                    <span class="nav-tab-number">6</span>
+                    Circulation
+                </a>
+                <a href="tab7-greens.html" class="nav-tab">
+                    <span class="nav-tab-number">7</span>
+                    Green's
+                </a>
+                <a href="tab8-stokes.html" class="nav-tab">
+                    <span class="nav-tab-number">8</span>
+                    Stokes
+                </a>
+                <a href="tab9-alternative.html" class="nav-tab">
+                    <span class="nav-tab-number">9</span>
+                    Alternative
+                </a>
+                <a href="tab10-simulation.html" class="nav-tab">
+                    <span class="nav-tab-number">10</span>
+                    Simulation
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1 class="hero-title">
+                Understanding <span>Stokes' Theorem</span><br>
+                Through Fluid Dynamics
+            </h1>
+            <p class="hero-subtitle">
+                An interactive journey from simple fluid concepts to one of mathematics' 
+                most beautiful theorems—explained with clarity, visuals, and hands-on demos.
+            </p>
+            <a href="tab1-fluids.html" class="hero-cta">
+                Begin Your Journey
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </section>
+
+        <!-- Overview Section -->
+        <section class="container">
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-label">The Big Picture</span>
+                    <h2>What is Stokes' Theorem, and Why Should You Care?</h2>
+                </div>
+                
+                <div class="two-column">
+                    <div>
+                        <p>
+                            <strong>Stokes' Theorem</strong> tells us something remarkable: if you want to know how much 
+                            a fluid is "spinning" inside a region, you don't need to check every point inside. 
+                            You can just walk around the boundary and measure how much the fluid pushes you along.
+                        </p>
+                        
+                        <div class="definition-box">
+                            <div class="definition-box-title">In Plain English</div>
+                            <p style="margin-bottom: 0;">
+                                The total "rotation" happening inside an area equals the total "push" you feel 
+                                walking around its edge.
+                            </p>
+                        </div>
+                        
+                        <p>
+                            This isn't just abstract math—it's how we understand electromagnetic fields, 
+                            design airplane wings, predict weather patterns, and simulate realistic water in video games.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <div class="math-block">
+                            <p style="margin-bottom: var(--space-md); color: var(--text-secondary);">
+                                The formal statement:
+                            </p>
+                            <div id="stokes-formula"></div>
+                        </div>
+                        
+                        <div class="analogy-box">
+                            <div class="analogy-box-title">🎯 Real-World Analogy</div>
+                            <p style="margin-bottom: 0;">
+                                Imagine a whirlpool in a bathtub. Instead of measuring the spin at every point 
+                                in the water, you could drop a rubber duck at the edge and see how fast it 
+                                circles around. The duck's journey tells you about the total rotation inside!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Roadmap Section -->
+        <section class="container">
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-label">Your Learning Path</span>
+                    <h2>10 Steps to Understanding</h2>
+                </div>
+                
+                <div class="card-grid">
+                    <!-- Tab 1 -->
+                    <a href="tab1-fluids.html" class="card concept-card">
+                        <span class="concept-card-number">01</span>
+                        <div class="concept-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+                                <path d="M8 12s1.5 2 4 2 4-2 4-2"/>
+                                <path d="M8 8s1.5 2 4 2 4-2 4-2"/>
+                                <path d="M8 16s1.5 2 4 2 4-2 4-2"/>
+                            </svg>
+                        </div>
+                        <h3>What is a Fluid?</h3>
+                        <p>Start with the basics: what makes something a fluid, and how do we describe its properties like thickness (viscosity) and compressibility?</p>
+                        <span class="concept-card-link">
+                            Explore 
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </span>
+                    </a>
+                    
+                    <!-- Tab 2 -->
+                    <a href="tab2-vectors.html" class="card concept-card">
+                        <span class="concept-card-number">02</span>
+                        <div class="concept-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                                <path d="M5 5l4 7-4 7"/>
+                            </svg>
+                        </div>
+                        <h3>Vector Fields & Flow</h3>
+                        <p>Learn how we represent fluid motion with arrows at every point in space—this is the mathematical language of flow.</p>
+                        <span class="concept-card-link">
+                            Explore 
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </span>
+                    </a>
+                    
+                    <!-- Tab 3 -->
+                    <a href="tab3-divergence.html" class="card concept-card">
+                        <span class="concept-card-number">03</span>
+                        <div class="concept-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+                                <path d="M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                            </svg>
+                        </div>
+                        <h3>Divergence: Sources & Sinks</h3>
+                        <p>Discover how to measure whether fluid is spreading out (like a fountain) or collecting together (like a drain) at any point.</p>
+                        <span class="concept-card-link">
+                            Explore 
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </span>
+                    </a>
+                    
+                    <!-- Tab 4 -->
+                    <a href="tab4-curl.html" class="card concept-card">
+                        <span class="concept-card-number">04</span>
+                        <div class="concept-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 12a9 9 0 11-6.219-8.56"/>
+                                <path d="M21 3v5h-5"/>
+                            </svg>
+                        </div>
+                        <h3>Curl: Rotation & Spin</h3>
+                        <p>Learn to detect local spinning in a flow. Imagine a tiny paddle wheel—which way would it turn? That's what curl measures.</p>
+                        <span class="concept-card-link">
+                            Explore 
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </span>
+                    </a>
+                    
+                    <!-- Tab 5 -->
+                    <a href="tab5-lineintegrals.html" class="card concept-card">
+                        <span class="concept-card-number">05</span>
+                        <div class="concept-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 17c3-3 5-6 9-6s6 3 9 6"/>
+                                <circle cx="3" cy="17" r="2"/>
+                                <circle cx="21" cy="17" r="2"/>
+                            </svg>
+                        </div>
+                        <h3>Line Integrals & Work</h3>
+                        <p>Add up the flow along a path. If you're swimming through a current, how much does it help or hinder you along your route?</p>
+                        <span class="concept-card-link">
+                            Explore 
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </span>
+                    </a>
+                    
+                    <!-- Tab 6 -->
+                    <a href="tab6-circulation.html" class="card concept-card">
+                        <span class="concept-card-number">06</span>
+                        <div class="concept-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="9"/>
+                                <path d="M12 3a9 9 0 019 9"/>
+                                <path d="M21 12l-3-3M21 12l-3 3"/>
+                            </svg>
+                        </div>
+                        <h3>Circulation & Flux</h3>
+                        <p>When you walk in a complete loop, does the flow push you around? That's circulation—the key to connecting boundaries to interiors.</p>
+                        <span class="concept-card-link">
+                            Explore 
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </span>
+                    </a>
+                    
+                    <!-- Tab 7 -->
+                    <a href="tab7-greens.html" class="card concept-card">
+                        <span class="concept-card-number">07</span>
+                        <div class="concept-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                <path d="M3 12h18"/>
+                                <path d="M12 3v18"/>
+                            </svg>
+                        </div>
+                        <h3>Green's Theorem (2D)</h3>
+                        <p>Our first major theorem: for flat regions, circulation around the edge equals the sum of all rotation inside. A 2D version of Stokes.</p>
+                        <span class="concept-card-link">
+                            Explore 
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </span>
+                    </a>
+                    
+                    <!-- Tab 8 -->
+                    <a href="tab8-stokes.html" class="card concept-card">
+                        <span class="concept-card-number">08</span>
+                        <div class="concept-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <ellipse cx="12" cy="12" rx="10" ry="4"/>
+                                <path d="M12 8c-5.5 0-10 1.8-10 4s4.5 4 10 4"/>
+                                <path d="M12 8v8"/>
+                            </svg>
+                        </div>
+                        <h3>Stokes' Theorem (3D)</h3>
+                        <p>The grand generalization: even for curved, tilted surfaces in 3D space, boundary circulation still equals interior rotation. Beautiful!</p>
+                        <span class="concept-card-link">
+                            Explore 
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </span>
+                    </a>
+                    
+                    <!-- Tab 9 -->
+                    <a href="tab9-alternative.html" class="card concept-card">
+                        <span class="concept-card-number">09</span>
+                        <div class="concept-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+                            </svg>
+                        </div>
+                        <h3>Alternative Formalizations</h3>
+                        <p>Explore different mathematical languages for the same ideas: differential forms, geometric algebra, and computational approaches.</p>
+                        <span class="concept-card-link">
+                            Explore 
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </span>
+                    </a>
+                    
+                    <!-- Tab 10 -->
+                    <a href="tab10-simulation.html" class="card concept-card">
+                        <span class="concept-card-number">10</span>
+                        <div class="concept-card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                <path d="M2 17l10 5 10-5"/>
+                                <path d="M2 12l10 5 10-5"/>
+                            </svg>
+                        </div>
+                        <h3>Realistic Fluid Simulation</h3>
+                        <p>Put it all together: use Navier-Stokes equations and GPU acceleration to create beautiful, interactive fluid simulations for games and graphics.</p>
+                        <span class="concept-card-link">
+                            Explore 
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Prerequisites Section -->
+        <section class="container container-narrow">
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-label">Before You Begin</span>
+                    <h2>What You'll Need</h2>
+                </div>
+                
+                <div class="card">
+                    <h3>Mathematical Background</h3>
+                    <p>
+                        Don't worry—we'll build everything from first principles. But you'll get the most out of this if you're familiar with:
+                    </p>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: var(--space-sm) 0; border-bottom: 1px solid rgba(6, 182, 212, 0.1);">
+                            <strong style="color: var(--accent-primary);">Basic algebra</strong> — working with equations and variables
+                        </li>
+                        <li style="padding: var(--space-sm) 0; border-bottom: 1px solid rgba(6, 182, 212, 0.1);">
+                            <strong style="color: var(--accent-primary);">Coordinates</strong> — understanding (x, y) and (x, y, z) positions
+                        </li>
+                        <li style="padding: var(--space-sm) 0; border-bottom: 1px solid rgba(6, 182, 212, 0.1);">
+                            <strong style="color: var(--accent-primary);">Basic calculus intuition</strong> — knowing that derivatives measure "rate of change" (we'll explain the rest!)
+                        </li>
+                        <li style="padding: var(--space-sm) 0;">
+                            <strong style="color: var(--accent-primary);">Curiosity</strong> — the most important prerequisite!
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="tip-box" style="margin-top: var(--space-xl);">
+                    <div style="font-weight: 600; color: var(--accent-success); margin-bottom: var(--space-sm);">
+                        💡 Learning Tip
+                    </div>
+                    <p style="margin-bottom: 0;">
+                        Each tab includes interactive demos. <strong>Play with them!</strong> 
+                        Drag sliders, click buttons, and watch what happens. The best way to understand 
+                        fluid dynamics is to develop intuition through experimentation.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="site-footer">
+            <div class="footer-content">
+                <p class="footer-text">
+                    An educational resource for understanding vector calculus through fluid dynamics.
+                </p>
+                <div class="footer-links">
+                    <a href="https://en.wikipedia.org/wiki/Stokes%27_theorem" target="_blank">Wikipedia</a>
+                    <a href="https://www.khanacademy.org/math/multivariable-calculus" target="_blank">Khan Academy</a>
+                    <a href="https://www.3blue1brown.com" target="_blank">3Blue1Brown</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Mobile nav toggle
+        function toggleMobileNav() {
+            document.getElementById('navTabs').classList.toggle('open');
+        }
+        
+        // Render math
+        document.addEventListener('DOMContentLoaded', function() {
+            // Render Stokes' formula
+            katex.render(
+                "\\oint_{\\partial S} \\mathbf{F} \\cdot d\\mathbf{r} = \\iint_S (\\nabla \\times \\mathbf{F}) \\cdot d\\mathbf{S}",
+                document.getElementById('stokes-formula'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            // Auto-render any other math
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+</html>
+
+

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10. Realistic Fluid Simulation | Stokes' Theorem</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        #fluid-canvas {
+            width: 100%;
+            height: 500px;
+            border-radius: var(--radius-lg);
+            cursor: crosshair;
+            touch-action: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="14" stroke="url(#logoGrad)" stroke-width="2"/>
+                    <path d="M10 16C10 16 13 12 16 12C19 12 22 16 22 16C22 16 19 20 16 20C13 20 10 16 10 16Z" 
+                          stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="16" cy="16" r="2" fill="#06b6d4"/>
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
+                            <stop stop-color="#06b6d4"/>
+                            <stop offset="1" stop-color="#3b82f6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>Stokes' Theorem</span>
+            </a>
+            
+            <button class="nav-mobile-toggle" onclick="toggleMobileNav()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 12h18M3 6h18M3 18h18"/>
+                </svg>
+            </button>
+            
+            <div class="nav-tabs" id="navTabs">
+                <a href="index.html" class="nav-tab"><span class="nav-tab-number">0</span>Home</a>
+                <a href="tab1-fluids.html" class="nav-tab"><span class="nav-tab-number">1</span>Fluids</a>
+                <a href="tab2-vectors.html" class="nav-tab"><span class="nav-tab-number">2</span>Vector Fields</a>
+                <a href="tab3-divergence.html" class="nav-tab"><span class="nav-tab-number">3</span>Divergence</a>
+                <a href="tab4-curl.html" class="nav-tab"><span class="nav-tab-number">4</span>Curl</a>
+                <a href="tab5-lineintegrals.html" class="nav-tab"><span class="nav-tab-number">5</span>Line Integrals</a>
+                <a href="tab6-circulation.html" class="nav-tab"><span class="nav-tab-number">6</span>Circulation</a>
+                <a href="tab7-greens.html" class="nav-tab"><span class="nav-tab-number">7</span>Green's</a>
+                <a href="tab8-stokes.html" class="nav-tab"><span class="nav-tab-number">8</span>Stokes</a>
+                <a href="tab9-alternative.html" class="nav-tab"><span class="nav-tab-number">9</span>Alternative</a>
+                <a href="tab10-simulation.html" class="nav-tab active"><span class="nav-tab-number">10</span>Simulation</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+        <div class="container container-wide">
+            <!-- Page Header -->
+            <div class="section-header" style="margin-bottom: var(--space-2xl);">
+                <span class="section-label">Chapter 10</span>
+                <h1>Realistic Fluid Simulation</h1>
+                <p style="font-size: 1.1rem; max-width: 700px;">
+                    Putting it all together: see the Navier-Stokes equations in action! 
+                    This GPU-accelerated simulation uses the principles we've learned.
+                </p>
+            </div>
+
+            <!-- Main Simulation -->
+            <div class="demo-container" style="margin-bottom: var(--space-2xl);">
+                <div class="demo-header">
+                    <span class="demo-title">Interactive WebGL Fluid Simulation</span>
+                    <div class="demo-controls">
+                        <button class="btn btn-secondary" onclick="clearFluid()">Clear</button>
+                        <button class="btn btn-secondary" onclick="togglePause()">
+                            <span id="pause-text">Pause</span>
+                        </button>
+                    </div>
+                </div>
+                <canvas id="fluid-canvas"></canvas>
+                <div class="demo-footer">
+                    <div class="control-group">
+                        <div class="control-item">
+                            <label class="control-label">
+                                Viscosity: <span class="control-value" id="visc-value">0.1</span>
+                            </label>
+                            <input type="range" id="viscosity-slider" min="0.01" max="1" step="0.01" value="0.1"
+                                   oninput="updateViscosity(this.value)">
+                        </div>
+                        <div class="control-item">
+                            <label class="control-label">
+                                Diffusion: <span class="control-value" id="diff-value">0.2</span>
+                            </label>
+                            <input type="range" id="diffusion-slider" min="0.01" max="1" step="0.01" value="0.2"
+                                   oninput="updateDiffusion(this.value)">
+                        </div>
+                        <div class="control-item">
+                            <label class="control-label">
+                                Pressure Iterations: <span class="control-value" id="iter-value">20</span>
+                            </label>
+                            <input type="range" id="iterations-slider" min="5" max="50" step="5" value="20"
+                                   oninput="updateIterations(this.value)">
+                        </div>
+                        <div class="control-item">
+                            <label class="control-label">Visualization</label>
+                            <select id="display-mode" onchange="updateDisplayMode(this.value)" 
+                                    style="width: 100%; padding: 8px; background: var(--bg-tertiary); 
+                                           border: 1px solid rgba(6,182,212,0.2); border-radius: 6px; 
+                                           color: var(--text-primary); cursor: pointer;">
+                                <option value="dye">Dye/Smoke</option>
+                                <option value="velocity">Velocity Field</option>
+                                <option value="pressure">Pressure</option>
+                                <option value="curl">Vorticity (Curl)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p style="margin-top: var(--space-md); font-size: 0.85rem; color: var(--text-muted);">
+                        <strong>Click and drag</strong> to add dye and create fluid motion. 
+                        The simulation uses the Navier-Stokes equations running in real-time on your GPU!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Explanation Section -->
+            <div class="two-column" style="gap: var(--space-2xl);">
+                <div>
+                    <h2>The Navier-Stokes Equations</h2>
+                    <p>
+                        The simulation is governed by the <strong>Navier-Stokes equations</strong>, 
+                        which describe how fluids move. These are among the most important equations 
+                        in physics!
+                    </p>
+                    
+                    <div class="definition-box" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%); border-left-color: #a855f7;">
+                        <div class="definition-box-title" style="color: #a855f7;">Incompressible Navier-Stokes</div>
+                        <div id="ns-momentum"></div>
+                        <div id="ns-continuity"></div>
+                    </div>
+
+                    <h3>Understanding Each Term</h3>
+                    <ul>
+                        <li><strong>$\frac{\partial \mathbf{u}}{\partial t}$:</strong> How velocity changes over time</li>
+                        <li><strong>$(\mathbf{u} \cdot \nabla)\mathbf{u}$:</strong> Advection — fluid carries itself</li>
+                        <li><strong>$-\nabla p$:</strong> Pressure gradient pushes fluid</li>
+                        <li><strong>$\nu \nabla^2 \mathbf{u}$:</strong> Viscosity diffuses momentum</li>
+                        <li><strong>$\mathbf{f}$:</strong> External forces (like your mouse!)</li>
+                        <li><strong>$\nabla \cdot \mathbf{u} = 0$:</strong> Incompressibility — fluid doesn't compress</li>
+                    </ul>
+
+                    <div class="tip-box">
+                        <div style="font-weight: 600; color: var(--accent-success); margin-bottom: var(--space-sm);">
+                            💡 The Curl Connection
+                        </div>
+                        <p style="margin-bottom: 0;">
+                            Switch to "Vorticity" mode to see the <strong>curl</strong> of the velocity field! 
+                            Areas of high vorticity are where the fluid is spinning — exactly what Stokes' 
+                            theorem measures!
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <h2>Simulation Algorithm</h2>
+                    <p>
+                        The simulation uses <strong>Jos Stam's "Stable Fluids"</strong> method, 
+                        which runs these steps each frame:
+                    </p>
+                    
+                    <div class="card" style="margin-bottom: var(--space-lg);">
+                        <ol style="margin: 0; padding-left: var(--space-lg);">
+                            <li style="padding: var(--space-sm) 0;">
+                                <strong>Add Forces:</strong> Apply external forces (mouse input)
+                            </li>
+                            <li style="padding: var(--space-sm) 0;">
+                                <strong>Advect:</strong> Move velocity and dye with the flow
+                            </li>
+                            <li style="padding: var(--space-sm) 0;">
+                                <strong>Diffuse:</strong> Spread out velocity (viscosity)
+                            </li>
+                            <li style="padding: var(--space-sm) 0;">
+                                <strong>Project:</strong> Make velocity divergence-free (incompressible)
+                            </li>
+                        </ol>
+                    </div>
+                    
+                    <h3>The Projection Step</h3>
+                    <p>
+                        This is where Stokes' theorem comes in! To enforce $\nabla \cdot \mathbf{u} = 0$:
+                    </p>
+                    <ol>
+                        <li>Compute the divergence of the velocity field</li>
+                        <li>Solve a Poisson equation for pressure</li>
+                        <li>Subtract the pressure gradient from velocity</li>
+                    </ol>
+                    <p>
+                        The Poisson solver uses the <strong>Divergence Theorem</strong> 
+                        (Gauss's theorem) — a close cousin of Stokes'!
+                    </p>
+
+                    <div class="analogy-box">
+                        <div class="analogy-box-title">🎮 Used in Games</div>
+                        <p style="margin-bottom: 0;">
+                            This exact algorithm powers fluid effects in many games and 
+                            movies! It's fast enough for real-time use while producing 
+                            visually convincing results.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Takeaways -->
+            <div class="card" style="margin-top: var(--space-3xl);">
+                <h3>Course Complete! Key Takeaways</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span><strong>Navier-Stokes equations</strong> describe fluid motion using the vector calculus we learned.</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span><strong>Divergence-free projection</strong> uses the Divergence Theorem to keep fluid incompressible.</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span><strong>Vorticity (curl)</strong> creates the beautiful swirling patterns you see in the simulation.</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span><strong>Stokes' Theorem</strong> connects circulation and vorticity — the math behind the beauty!</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Congratulations -->
+            <div class="hero" style="margin-top: var(--space-3xl); padding: var(--space-2xl);">
+                <h2 style="color: var(--accent-tertiary);">🎉 Congratulations!</h2>
+                <p style="max-width: 600px; margin: var(--space-lg) auto;">
+                    You've completed the journey from basic fluid properties to Stokes' Theorem 
+                    and beyond! You now understand one of the most beautiful connections in mathematics.
+                </p>
+                <a href="index.html" class="hero-cta">
+                    Review the Journey
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Page Navigation -->
+            <div class="page-nav">
+                <a href="tab9-alternative.html" class="page-nav-link prev">
+                    <span class="page-nav-label">← Previous</span>
+                    <span class="page-nav-title">Alternative Formalizations</span>
+                </a>
+                <a href="index.html" class="page-nav-link next">
+                    <span class="page-nav-label">Start Over →</span>
+                    <span class="page-nav-title">Home</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/tab10-simulation.js"></script>
+    <script>
+        function toggleMobileNav() {
+            document.getElementById('navTabs').classList.toggle('open');
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            katex.render("\\frac{\\partial \\mathbf{u}}{\\partial t} + (\\mathbf{u} \\cdot \\nabla)\\mathbf{u} = -\\nabla p + \\nu \\nabla^2 \\mathbf{u} + \\mathbf{f}", 
+                document.getElementById('ns-momentum'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            katex.render("\\nabla \\cdot \\mathbf{u} = 0", 
+                document.getElementById('ns-continuity'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+</html>
+
+

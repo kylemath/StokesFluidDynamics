@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5. Line Integrals & Work | Stokes' Theorem</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <!-- p5.js -->
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="14" stroke="url(#logoGrad)" stroke-width="2"/>
+                    <path d="M10 16C10 16 13 12 16 12C19 12 22 16 22 16C22 16 19 20 16 20C13 20 10 16 10 16Z" 
+                          stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="16" cy="16" r="2" fill="#06b6d4"/>
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
+                            <stop stop-color="#06b6d4"/>
+                            <stop offset="1" stop-color="#3b82f6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>Stokes' Theorem</span>
+            </a>
+            
+            <button class="nav-mobile-toggle" onclick="toggleMobileNav()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 12h18M3 6h18M3 18h18"/>
+                </svg>
+            </button>
+            
+            <div class="nav-tabs" id="navTabs">
+                <a href="index.html" class="nav-tab"><span class="nav-tab-number">0</span>Home</a>
+                <a href="tab1-fluids.html" class="nav-tab"><span class="nav-tab-number">1</span>Fluids</a>
+                <a href="tab2-vectors.html" class="nav-tab"><span class="nav-tab-number">2</span>Vector Fields</a>
+                <a href="tab3-divergence.html" class="nav-tab"><span class="nav-tab-number">3</span>Divergence</a>
+                <a href="tab4-curl.html" class="nav-tab"><span class="nav-tab-number">4</span>Curl</a>
+                <a href="tab5-lineintegrals.html" class="nav-tab active"><span class="nav-tab-number">5</span>Line Integrals</a>
+                <a href="tab6-circulation.html" class="nav-tab"><span class="nav-tab-number">6</span>Circulation</a>
+                <a href="tab7-greens.html" class="nav-tab"><span class="nav-tab-number">7</span>Green's</a>
+                <a href="tab8-stokes.html" class="nav-tab"><span class="nav-tab-number">8</span>Stokes</a>
+                <a href="tab9-alternative.html" class="nav-tab"><span class="nav-tab-number">9</span>Alternative</a>
+                <a href="tab10-simulation.html" class="nav-tab"><span class="nav-tab-number">10</span>Simulation</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="section-header" style="margin-bottom: var(--space-2xl);">
+                <span class="section-label">Chapter 5</span>
+                <h1>Line Integrals & Work</h1>
+                <p style="font-size: 1.1rem; max-width: 700px;">
+                    How much does the flow help or hinder you as you travel along a path? 
+                    Line integrals add up the field's contribution along your journey.
+                </p>
+            </div>
+
+            <!-- Main Content -->
+            <div class="two-column">
+                <div class="explanation-column">
+                    <div class="section">
+                        <h2>The Swimmer's Perspective</h2>
+                        
+                        <p>
+                            Imagine you're a swimmer in a river. As you swim from point A to point B, 
+                            sometimes the current helps you (flows in your direction), sometimes it 
+                            pushes against you, and sometimes it pushes sideways (neither helping nor hindering).
+                        </p>
+                        
+                        <div class="analogy-box">
+                            <div class="analogy-box-title">🏊 The Line Integral Question</div>
+                            <p style="margin-bottom: 0;">
+                                "How much total help or hindrance did the current provide along my entire path?"
+                                <br><br>
+                                This is exactly what a <strong>line integral</strong> calculates: the accumulated 
+                                effect of a field along a curve.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2>The Mathematical Definition</h2>
+                        
+                        <div class="definition-box">
+                            <div class="definition-box-title">Line Integral of a Vector Field</div>
+                            <p>
+                                For a vector field $\mathbf{F}$ and a curve $C$, the line integral is:
+                            </p>
+                            <div id="line-integral-formula"></div>
+                            <p style="margin-bottom: 0;">
+                                The $d\mathbf{r}$ is a tiny step along the path, and the dot product $\mathbf{F} \cdot d\mathbf{r}$ 
+                                gives how much the field aligns with that step.
+                            </p>
+                        </div>
+
+                        <h3>Breaking It Down</h3>
+                        <p>
+                            At each tiny segment of your path:
+                        </p>
+                        <ol>
+                            <li>Look at the field vector $\mathbf{F}$ at that point</li>
+                            <li>Look at the direction you're walking: $d\mathbf{r}$</li>
+                            <li>Compute the <strong>dot product</strong>: $\mathbf{F} \cdot d\mathbf{r} = |\mathbf{F}| \cdot |d\mathbf{r}| \cdot \cos\theta$</li>
+                            <li>This gives the component of $\mathbf{F}$ in your walking direction, times the step size</li>
+                        </ol>
+
+                        <div class="math-block">
+                            <span id="dot-product-formula"></span>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2>Physical Interpretation: Work</h2>
+                        
+                        <p>
+                            In physics, when the field $\mathbf{F}$ represents a force, the line integral 
+                            gives the <strong>work</strong> done by that force:
+                        </p>
+                        
+                        <div class="definition-box">
+                            <div class="definition-box-title">Work (Physics)</div>
+                            <p style="margin-bottom: 0;">
+                                Work = Force × Distance (in the force's direction)
+                                <br><br>
+                                $W = \int_C \mathbf{F} \cdot d\mathbf{r}$
+                                <br><br>
+                                Positive work: the force helps your motion<br>
+                                Negative work: the force opposes your motion
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2>Key Properties</h2>
+                        
+                        <h3>1. Path Dependence</h3>
+                        <p>
+                            In general, the line integral depends on <em>which path</em> you take, 
+                            not just the endpoints! A winding path might give a different result than a straight one.
+                        </p>
+                        
+                        <h3>2. Direction Matters</h3>
+                        <p>
+                            Reversing your path reverses the sign of the integral:
+                        </p>
+                        <div class="math-block">
+                            <span id="reverse-path-formula"></span>
+                        </div>
+                        
+                        <h3>3. Conservative Fields</h3>
+                        <p>
+                            Some special fields have line integrals that <em>only</em> depend on endpoints. 
+                            These are called <strong>conservative</strong> or <strong>gradient</strong> fields. 
+                            For such fields, any closed loop has integral zero!
+                        </p>
+
+                        <div class="tip-box">
+                            <div style="font-weight: 600; color: var(--accent-success); margin-bottom: var(--space-sm);">
+                                💡 Looking Ahead
+                            </div>
+                            <p style="margin-bottom: 0;">
+                                Stokes' Theorem will tell us exactly when a line integral around a closed loop 
+                                is <em>not</em> zero—it's related to the curl inside!
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2>Computing Line Integrals</h2>
+                        <p>
+                            To compute a line integral, we parameterize the curve: express 
+                            points on the curve as functions of a parameter $t$:
+                        </p>
+                        <div class="math-block">
+                            <span id="parametric-formula"></span>
+                        </div>
+                        <p>
+                            Then the line integral becomes an ordinary integral over $t$:
+                        </p>
+                        <div class="math-block">
+                            <span id="parametric-integral"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <!-- Interactive Demo -->
+                    <div class="demo-container" style="position: sticky; top: 90px;">
+                        <div class="demo-header">
+                            <span class="demo-title">Interactive: Line Integral Calculator</span>
+                            <div class="demo-controls">
+                                <button class="btn btn-secondary" onclick="clearPath()">Clear Path</button>
+                                <button class="btn btn-secondary" onclick="resetDemo()">Reset</button>
+                            </div>
+                        </div>
+                        <div class="demo-canvas" id="lineintegral-demo"></div>
+                        <div class="demo-footer">
+                            <div class="control-group">
+                                <div class="control-item">
+                                    <label class="control-label">Field Type</label>
+                                    <select id="field-type" onchange="updateFieldType(this.value)" 
+                                            style="width: 100%; padding: 8px; background: var(--bg-tertiary); 
+                                                   border: 1px solid rgba(6,182,212,0.2); border-radius: 6px; 
+                                                   color: var(--text-primary); cursor: pointer;">
+                                        <option value="uniform">Uniform (→)</option>
+                                        <option value="radial">Radial (outward)</option>
+                                        <option value="rotation">Rotation (CCW)</option>
+                                        <option value="gradient">Gradient (conservative)</option>
+                                    </select>
+                                </div>
+                                <div class="control-item">
+                                    <label class="control-label">
+                                        Line Integral: <span class="control-value" id="integral-value" style="font-size: 1.2rem;">0.00</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="vector-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #10b981;"></div>
+                                    <span>Positive (with flow)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #ef4444;"></div>
+                                    <span>Negative (against flow)</span>
+                                </div>
+                            </div>
+                            <p style="margin-top: var(--space-md); font-size: 0.85rem; color: var(--text-muted);">
+                                <strong>Draw a path:</strong> Click and drag to draw. The line integral 
+                                accumulates as you go—green when the field helps, red when it opposes.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Takeaways -->
+            <div class="card" style="margin-top: var(--space-3xl);">
+                <h3>Key Takeaways</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span>A <strong>line integral</strong> adds up the field's contribution along a path.</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span>Formula: $\int_C \mathbf{F} \cdot d\mathbf{r}$ — the dot product measures alignment with the path.</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span>Physical meaning: <strong>work</strong> done by a force along a path.</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span>Generally <strong>path-dependent</strong>—different paths can give different results!</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Page Navigation -->
+            <div class="page-nav">
+                <a href="tab4-curl.html" class="page-nav-link prev">
+                    <span class="page-nav-label">← Previous</span>
+                    <span class="page-nav-title">Curl: Rotation & Spin</span>
+                </a>
+                <a href="tab6-circulation.html" class="page-nav-link next">
+                    <span class="page-nav-label">Next →</span>
+                    <span class="page-nav-title">Circulation & Flux</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/tab5-lineintegrals.js"></script>
+    <script>
+        function toggleMobileNav() {
+            document.getElementById('navTabs').classList.toggle('open');
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            katex.render("\\int_C \\mathbf{F} \\cdot d\\mathbf{r}", 
+                document.getElementById('line-integral-formula'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            katex.render("\\mathbf{F} \\cdot d\\mathbf{r} = F_x \\, dx + F_y \\, dy", 
+                document.getElementById('dot-product-formula'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            katex.render("\\int_{-C} \\mathbf{F} \\cdot d\\mathbf{r} = -\\int_C \\mathbf{F} \\cdot d\\mathbf{r}", 
+                document.getElementById('reverse-path-formula'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            katex.render("\\mathbf{r}(t) = (x(t), y(t)), \\quad t \\in [a, b]", 
+                document.getElementById('parametric-formula'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            katex.render("\\int_C \\mathbf{F} \\cdot d\\mathbf{r} = \\int_a^b \\mathbf{F}(\\mathbf{r}(t)) \\cdot \\mathbf{r}'(t) \\, dt", 
+                document.getElementById('parametric-integral'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+</html>
+
+
