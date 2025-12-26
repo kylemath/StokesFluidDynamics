@@ -8,17 +8,25 @@ let edges = [];
 let faces = [];
 let selectedEdge = null;
 let canvas;
+let isSetup = false;
 
 function setup() {
     const container = document.getElementById('discrete-demo');
-    if (!container) return;
+    if (!container) {
+        console.log('Container not found, retrying...');
+        setTimeout(setup, 100);
+        return;
+    }
     
-    const width = container.offsetWidth;
+    const width = container.offsetWidth || 600;
     const height = 300;
+    
+    console.log('Setting up p5 canvas:', width, 'x', height);
     
     canvas = createCanvas(width, height);
     canvas.parent('discrete-demo');
     
+    isSetup = true;
     createMesh();
 }
 
@@ -130,7 +138,7 @@ function calculateCurl() {
 }
 
 function draw() {
-    if (!canvas) return;
+    if (!canvas || !isSetup) return;
     
     background(17, 24, 39);
     
@@ -275,8 +283,19 @@ function windowResized() {
     const container = document.getElementById('discrete-demo');
     if (!container) return;
     
-    resizeCanvas(container.offsetWidth, 300);
-    createMesh();
+    const newWidth = container.offsetWidth || 600;
+    if (canvas) {
+        resizeCanvas(newWidth, 300);
+        createMesh();
+    }
 }
+
+// Add a manual initialization function that can be called when tab becomes visible
+window.initDiscreteDemo = function() {
+    if (!isSetup) {
+        console.log('Manually initializing discrete demo');
+        setup();
+    }
+};
 
 

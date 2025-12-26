@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>11. Advanced 3D Simulations | Stokes' Theorem</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="14" stroke="url(#logoGrad)" stroke-width="2"/>
+                    <path d="M10 16C10 16 13 12 16 12C19 12 22 16 22 16C22 16 19 20 16 20C13 20 10 16 10 16Z" 
+                          stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="16" cy="16" r="2" fill="#06b6d4"/>
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
+                            <stop stop-color="#06b6d4"/>
+                            <stop offset="1" stop-color="#3b82f6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>Stokes' Theorem</span>
+            </a>
+            
+            <button class="nav-mobile-toggle" onclick="toggleMobileNav()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 12h18M3 6h18M3 18h18"/>
+                </svg>
+            </button>
+            
+            <div class="nav-tabs" id="navTabs">
+                <a href="index.html" class="nav-tab"><span class="nav-tab-number">0</span><span class="nav-tab-label">Home</span></a>
+                <a href="tab1-fluids.html" class="nav-tab"><span class="nav-tab-number">1</span><span class="nav-tab-label">Fluids</span></a>
+                <a href="tab2-vectors.html" class="nav-tab"><span class="nav-tab-number">2</span><span class="nav-tab-label">Vectors</span></a>
+                <a href="tab3-divergence.html" class="nav-tab"><span class="nav-tab-number">3</span><span class="nav-tab-label">Divergence</span></a>
+                <a href="tab4-curl.html" class="nav-tab"><span class="nav-tab-number">4</span><span class="nav-tab-label">Curl</span></a>
+                <a href="tab5-lineintegrals.html" class="nav-tab"><span class="nav-tab-number">5</span><span class="nav-tab-label">Line Int.</span></a>
+                <a href="tab6-circulation.html" class="nav-tab"><span class="nav-tab-number">6</span><span class="nav-tab-label">Circulation</span></a>
+                <a href="tab7-greens.html" class="nav-tab"><span class="nav-tab-number">7</span><span class="nav-tab-label">Green's</span></a>
+                <a href="tab8-stokes.html" class="nav-tab"><span class="nav-tab-number">8</span><span class="nav-tab-label">Stokes</span></a>
+                <a href="tab9-alternative.html" class="nav-tab"><span class="nav-tab-number">9</span><span class="nav-tab-label">Alt.</span></a>
+                <a href="tab10-simulation.html" class="nav-tab"><span class="nav-tab-number">10</span><span class="nav-tab-label">Sim</span></a>
+                <a href="tab11-advanced.html" class="nav-tab active"><span class="nav-tab-number">11</span><span class="nav-tab-label">3D</span></a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="section-header" style="margin-bottom: var(--space-2xl);">
+                <span class="section-label">Chapter 11</span>
+                <h1>Advanced 3D Simulations</h1>
+                <p style="font-size: 1.1rem; max-width: 700px;">
+                    Explore cutting-edge fluid dynamics in 3D: volumetric smoke, multiphase flows, 
+                    fluid-fluid interfaces, and elastic membrane dynamics.
+                </p>
+            </div>
+
+            <!-- Tab Buttons -->
+            <div class="tab-container">
+                <div class="tab-buttons">
+                    <button class="tab-button active" onclick="showTab('smoke')">Smoke Simulation</button>
+                    <button class="tab-button" onclick="showTab('fluid')">3D Fluid Flow</button>
+                    <button class="tab-button" onclick="showTab('interface')">Fluid Interface</button>
+                    <button class="tab-button" onclick="showTab('membrane')">Thin Membrane</button>
+                </div>
+
+                <!-- Smoke Simulation -->
+                <div id="smoke-tab" class="tab-content active">
+                    <div class="two-column">
+                        <div>
+                            <h2>Volumetric Smoke Simulation</h2>
+                            <p>
+                                Smoke is a fascinating example of fluid dynamics in action. It combines:
+                            </p>
+                            <ul>
+                                <li><strong>Advection:</strong> Smoke particles move with the velocity field</li>
+                                <li><strong>Diffusion:</strong> Smoke spreads out and dissipates over time</li>
+                                <li><strong>Buoyancy:</strong> Hot smoke rises due to temperature differences</li>
+                                <li><strong>Vorticity confinement:</strong> Preserves swirling details</li>
+                            </ul>
+                            
+                            <div class="definition-box">
+                                <div class="definition-box-title">Smoke Density Evolution</div>
+                                <div id="smoke-formula"></div>
+                                <p style="margin-bottom: 0;">
+                                    Where $\rho$ is density, $\mathbf{u}$ is velocity, and $\kappa$ is diffusion.
+                                </p>
+                            </div>
+                            
+                            <h3>Interactive Controls</h3>
+                            <div class="control-group">
+                                <div class="control-item">
+                                    <label class="control-label">Buoyancy <span class="control-value" id="buoyancy-val">0.5</span></label>
+                                    <input type="range" id="buoyancy-slider" min="0" max="1" step="0.1" value="0.5">
+                                </div>
+                                <div class="control-item">
+                                    <label class="control-label">Vorticity <span class="control-value" id="vorticity-val">0.3</span></label>
+                                    <input type="range" id="vorticity-slider" min="0" max="1" step="0.1" value="0.3">
+                                </div>
+                                <div class="control-item">
+                                    <label class="control-label">Diffusion <span class="control-value" id="smoke-diffusion-val">0.01</span></label>
+                                    <input type="range" id="smoke-diffusion-slider" min="0" max="0.1" step="0.01" value="0.01">
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-primary" onclick="resetSmoke()">Reset Smoke</button>
+                        </div>
+                        
+                        <div>
+                            <div class="demo-container">
+                                <div class="demo-header">
+                                    <span class="demo-title">3D Smoke Plume</span>
+                                </div>
+                                <div class="demo-canvas" id="smoke-demo" style="height: 500px;"></div>
+                                <div class="demo-footer">
+                                    <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                        Drag to rotate • Scroll to zoom • Watch the smoke rise and swirl
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3D Fluid Flow -->
+                <div id="fluid-tab" class="tab-content">
+                    <div class="two-column">
+                        <div>
+                            <h2>3D Incompressible Fluid</h2>
+                            <p>
+                                A full 3D implementation of the Navier-Stokes equations for incompressible flow.
+                            </p>
+                            
+                            <div class="definition-box">
+                                <div class="definition-box-title">Navier-Stokes in 3D</div>
+                                <div id="ns-formula"></div>
+                                <p style="margin-bottom: 0;">
+                                    With incompressibility constraint: $\nabla \cdot \mathbf{u} = 0$
+                                </p>
+                            </div>
+                            
+                            <h3>Visualization Modes</h3>
+                            <div style="display: flex; flex-direction: column; gap: var(--space-sm); margin: var(--space-lg) 0;">
+                                <button class="btn btn-secondary" onclick="setFluidMode('streamlines')">Streamlines</button>
+                                <button class="btn btn-secondary" onclick="setFluidMode('particles')">Particle Tracers</button>
+                                <button class="btn btn-secondary" onclick="setFluidMode('vorticity')">Vorticity Field</button>
+                            </div>
+                            
+                            <div class="control-group">
+                                <div class="control-item">
+                                    <label class="control-label">Viscosity <span class="control-value" id="viscosity-val">0.001</span></label>
+                                    <input type="range" id="viscosity-slider" min="0" max="0.01" step="0.001" value="0.001">
+                                </div>
+                                <div class="control-item">
+                                    <label class="control-label">Flow Speed <span class="control-value" id="flow-speed-val">1.0</span></label>
+                                    <input type="range" id="flow-speed-slider" min="0" max="2" step="0.1" value="1.0">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="demo-container">
+                                <div class="demo-header">
+                                    <span class="demo-title">3D Vector Field</span>
+                                </div>
+                                <div class="demo-canvas" id="fluid-demo" style="height: 500px;"></div>
+                                <div class="demo-footer">
+                                    <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                        Interactive 3D fluid flow visualization
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fluid Interface -->
+                <div id="interface-tab" class="tab-content">
+                    <div class="two-column">
+                        <div>
+                            <h2>Water-Air Interface</h2>
+                            <p>
+                                Watch as droplets fall from above and splash into a water surface, 
+                                creating realistic ripples that propagate outward. Surface tension 
+                                works to restore the flat surface.
+                            </p>
+                            
+                            <div class="definition-box">
+                                <div class="definition-box-title">Interface Dynamics</div>
+                                <div id="interface-formula"></div>
+                                <p style="margin-bottom: 0;">
+                                    Where $\sigma$ is surface tension and $\kappa$ is interface curvature.
+                                </p>
+                            </div>
+                            
+                            <h3>Physical Effects</h3>
+                            <ul>
+                                <li><strong>Surface Tension:</strong> Minimizes interface area (soap bubbles!)</li>
+                                <li><strong>Rayleigh-Taylor Instability:</strong> Heavy fluid above light fluid</li>
+                                <li><strong>Kelvin-Helmholtz Instability:</strong> Shear between fluids</li>
+                                <li><strong>Capillary Waves:</strong> Small ripples at the interface</li>
+                            </ul>
+                            
+                            <div class="control-group">
+                                <div class="control-item">
+                                    <label class="control-label">Surface Tension <span class="control-value" id="tension-val">0.5</span></label>
+                                    <input type="range" id="tension-slider" min="0" max="1" step="0.1" value="0.5">
+                                </div>
+                                <div class="control-item">
+                                    <label class="control-label">Droplet Size <span class="control-value" id="droplet-size-val">0.5</span></label>
+                                    <input type="range" id="droplet-size-slider" min="0.1" max="1" step="0.1" value="0.5">
+                                </div>
+                                <div class="control-item">
+                                    <label class="control-label">Damping <span class="control-value" id="water-damping-val">0.98</span></label>
+                                    <input type="range" id="water-damping-slider" min="0.9" max="0.999" step="0.005" value="0.98">
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-primary" onclick="resetInterface()">Reset Interface</button>
+                        </div>
+                        
+                        <div>
+                            <div class="demo-container">
+                                <div class="demo-header">
+                                    <span class="demo-title">Water Surface & Falling Droplets</span>
+                                </div>
+                                <div class="demo-canvas" id="interface-demo" style="height: 500px;"></div>
+                                <div class="demo-footer">
+                                    <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                        Watch droplets fall and create ripples on the water surface • Drag to rotate view
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thin Membrane -->
+                <div id="membrane-tab" class="tab-content">
+                    <div class="two-column">
+                        <div>
+                            <h2>Elastic Membrane in Fluid</h2>
+                            <p>
+                                Thin elastic membranes (like soap films or biological membranes) interact 
+                                with surrounding fluids through fluid-structure interaction (FSI).
+                            </p>
+                            
+                            <div class="definition-box">
+                                <div class="definition-box-title">Membrane Equation</div>
+                                <div id="membrane-formula"></div>
+                                <p style="margin-bottom: 0;">
+                                    Where $\mathbf{f}$ is the elastic force and $\mathbf{p}$ is fluid pressure.
+                                </p>
+                            </div>
+                            
+                            <h3>Key Phenomena</h3>
+                            <ul>
+                                <li><strong>Stretching:</strong> Membrane resists extension</li>
+                                <li><strong>Bending:</strong> Resists curvature changes</li>
+                                <li><strong>Fluid Coupling:</strong> Membrane motion affects flow</li>
+                                <li><strong>Pressure Loading:</strong> Fluid pushes on membrane</li>
+                            </ul>
+                            
+                            <div class="analogy-box">
+                                <div class="analogy-box-title">🎯 Real-World Examples</div>
+                                <p style="margin-bottom: 0;">
+                                    • Soap bubbles and films<br>
+                                    • Biological cell membranes<br>
+                                    • Heart valves<br>
+                                    • Parachutes and sails
+                                </p>
+                            </div>
+                            
+                            <div class="control-group">
+                                <div class="control-item">
+                                    <label class="control-label">Stiffness <span class="control-value" id="stiffness-val">0.5</span></label>
+                                    <input type="range" id="stiffness-slider" min="0" max="1" step="0.1" value="0.5">
+                                </div>
+                                <div class="control-item">
+                                    <label class="control-label">Damping <span class="control-value" id="damping-val">0.1</span></label>
+                                    <input type="range" id="damping-slider" min="0" max="0.5" step="0.05" value="0.1">
+                                </div>
+                                <div class="control-item">
+                                    <label class="control-label">Wind Force <span class="control-value" id="wind-val">0.5</span></label>
+                                    <input type="range" id="wind-slider" min="0" max="2" step="0.1" value="0.5">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="demo-container">
+                                <div class="demo-header">
+                                    <span class="demo-title">Elastic Membrane</span>
+                                </div>
+                                <div class="demo-canvas" id="membrane-demo" style="height: 500px;"></div>
+                                <div class="demo-footer">
+                                    <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                        <strong>Drag</strong> to rotate camera • <strong>Shift+Click</strong> or <strong>Shift+Drag</strong> to poke the membrane
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Takeaways -->
+            <div class="card" style="margin-top: var(--space-3xl);">
+                <h3>Key Takeaways</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span><strong>Smoke simulation:</strong> Combines advection, diffusion, buoyancy, and vorticity confinement.</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span><strong>3D fluids:</strong> Full Navier-Stokes in three dimensions with complex vortex structures.</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span><strong>Fluid interfaces:</strong> Surface tension, instabilities, and multi-phase flows.</span>
+                    </li>
+                    <li style="padding: var(--space-sm) 0; display: flex; align-items: flex-start; gap: var(--space-md);">
+                        <span style="color: var(--accent-success); font-size: 1.2rem;">✓</span>
+                        <span><strong>Elastic membranes:</strong> Fluid-structure interaction connects fluid dynamics to solid mechanics.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Page Navigation -->
+            <div class="page-nav">
+                <a href="tab10-simulation.html" class="page-nav-link prev">
+                    <span class="page-nav-label">← Previous</span>
+                    <span class="page-nav-title">Realistic Fluid Simulation</span>
+                </a>
+                <a href="index.html" class="page-nav-link next">
+                    <span class="page-nav-label">Back to Home →</span>
+                    <span class="page-nav-title">Start Over</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/tab11-advanced.js"></script>
+    <script>
+        function toggleMobileNav() {
+            document.getElementById('navTabs').classList.toggle('open');
+        }
+        
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+            
+            // Initialize the simulation for this tab if needed
+            if (typeof window.initSimulation === 'function') {
+                setTimeout(() => {
+                    window.initSimulation(tabName);
+                }, 100);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            katex.render("\\frac{\\partial \\rho}{\\partial t} + \\mathbf{u} \\cdot \\nabla \\rho = \\kappa \\nabla^2 \\rho + f_\\text{buoy}", 
+                document.getElementById('smoke-formula'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            katex.render("\\frac{\\partial \\mathbf{u}}{\\partial t} + (\\mathbf{u} \\cdot \\nabla)\\mathbf{u} = -\\frac{1}{\\rho}\\nabla p + \\nu \\nabla^2 \\mathbf{u}", 
+                document.getElementById('ns-formula'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            katex.render("\\mathbf{F}_\\text{surface} = \\sigma \\kappa \\mathbf{n}", 
+                document.getElementById('interface-formula'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            katex.render("m\\frac{\\partial^2 \\mathbf{x}}{\\partial t^2} = \\mathbf{f}_\\text{elastic} + \\mathbf{p}_\\text{fluid}", 
+                document.getElementById('membrane-formula'),
+                { displayMode: true, throwOnError: false }
+            );
+            
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+</html>
+

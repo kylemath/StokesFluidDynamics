@@ -185,63 +185,82 @@ code {
   background: rgba(10, 14, 23, 0.95);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(6, 182, 212, 0.1);
-  padding: var(--space-sm) 0;
+  padding: 0.35rem 0;
 }
 
 .nav-container {
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 0 var(--space-lg);
+  padding: 0 var(--space-md);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-lg);
+  gap: var(--space-md);
 }
 
 .nav-logo {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: var(--space-xs);
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary);
   text-decoration: none;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .nav-logo svg {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
 }
 
 .nav-tabs {
   display: flex;
-  gap: var(--space-xs);
+  gap: 2px;
   overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(6, 182, 212, 0.3) transparent;
   padding: var(--space-xs) 0;
+  scroll-behavior: smooth;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .nav-tabs::-webkit-scrollbar {
-  display: none;
+  height: 4px;
+}
+
+.nav-tabs::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.nav-tabs::-webkit-scrollbar-thumb {
+  background: rgba(6, 182, 212, 0.3);
+  border-radius: var(--radius-full);
+}
+
+.nav-tabs::-webkit-scrollbar-thumb:hover {
+  background: rgba(6, 182, 212, 0.5);
 }
 
 .nav-tab {
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-sm) var(--space-md);
+  gap: 3px;
+  padding: 0.35rem 0.4rem;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: 0.7rem;
   font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
   transition: all var(--transition-fast);
   text-decoration: none;
+  flex-shrink: 0;
 }
 
 .nav-tab:hover {
@@ -261,12 +280,13 @@ code {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-full);
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   font-weight: 700;
+  flex-shrink: 0;
 }
 
 .nav-tab.active .nav-tab-number {
@@ -281,6 +301,17 @@ code {
   color: var(--text-primary);
   padding: var(--space-sm);
   cursor: pointer;
+}
+
+/* Hide tab text labels on medium screens to fit all tabs */
+@media (max-width: 1280px) and (min-width: 1025px) {
+  .nav-tab {
+    padding: 0.35rem;
+  }
+  
+  .nav-tab-label {
+    display: none;
+  }
 }
 
 @media (max-width: 1024px) {
@@ -303,6 +334,18 @@ code {
   .nav-mobile-toggle {
     display: block;
   }
+  
+  .nav-tab {
+    padding: var(--space-sm) var(--space-md);
+    font-size: 0.85rem;
+    gap: var(--space-sm);
+  }
+  
+  .nav-tab-number {
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+  }
 }
 
 /* ============================================
@@ -311,7 +354,7 @@ code {
 
 .page-wrapper {
   min-height: 100vh;
-  padding-top: 70px;
+  padding-top: 60px;
 }
 
 .container {
@@ -534,11 +577,12 @@ code {
 
 .demo-canvas {
   width: 100%;
-  min-height: 400px;
+  min-height: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+  background: var(--bg-primary);
 }
 
 .demo-canvas canvas {
@@ -757,7 +801,7 @@ input[type="range"]::-moz-range-thumb {
 
 .explanation-column {
   position: sticky;
-  top: 90px;
+  top: 70px;
 }
 
 /* ============================================
@@ -826,7 +870,7 @@ input[type="range"]::-moz-range-thumb {
 
 .progress-bar {
   position: fixed;
-  top: 64px;
+  top: 52px;
   left: 0;
   right: 0;
   height: 3px;

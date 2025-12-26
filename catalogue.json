@@ -1,11 +1,11 @@
 {
   "id": "StokesFluidDynamics",
   "title": "StokesFluidDynamics",
-  "oneLiner": "Web demos of fluid dynamics concepts",
+  "oneLiner": "Interactive 3D simulations exploring Stokes' Theorem through fluid dynamics",
   "demoUrl": "https://kylemath.github.io/StokesFluidDynamics",
   "screenshot": "https://raw.githubusercontent.com/kylemath/StokesFluidDynamics/main/screenshot.png",
   "kind": "project",
-  "categories": ["physics", "web demo", "fluid"],
-  "tags": ["physics", "web demo", "fluid"],
+  "categories": ["physics", "web demo", "fluid", "3d simulation"],
+  "tags": ["physics", "web demo", "fluid", "3d", "three.js", "smoke", "membrane", "fluid interface"],
   "status": "published"
 }
