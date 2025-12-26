@@ -3,6 +3,9 @@
  * Three.js visualization of surfaces and their boundary curves
  */
 
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
 let scene, camera, renderer, controls;
 let surfaceMesh, boundaryCurve, vectorArrows;
 let surfaceType = 'flat';
@@ -10,6 +13,8 @@ let fieldType = 'rotation';
 
 function init() {
     const container = document.getElementById('stokes-demo');
+    if (!container) return;
+    
     const width = container.offsetWidth;
     const height = 400;
     
@@ -29,7 +34,7 @@ function init() {
     container.appendChild(renderer.domElement);
     
     // Controls
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.enableZoom = true;
@@ -275,6 +280,8 @@ function addBoundaryArrows(radius, numArrows) {
     boundaryCurve.add(arrowGroup);
 }
 
+let vectorDisplayMode = 'volume'; // 'plane', 'surface', 'volume'
+
 function createVectorField() {
     if (vectorArrows) {
         scene.remove(vectorArrows);
@@ -282,6 +289,21 @@ function createVectorField() {
     
     vectorArrows = new THREE.Group();
     
+    if (vectorDisplayMode === 'plane') {
+        // Vectors on a single plane at y=0
+        createPlaneVectors();
+    } else if (vectorDisplayMode === 'surface') {
+        // Vectors on the actual surface
+        createSurfaceVectors();
+    } else {
+        // Volumetric 3D grid of vectors
+        createVolumeVectors();
+    }
+    
+    scene.add(vectorArrows);
+}
+
+function createPlaneVectors() {
     const gridSize = 5;
     const spacing = 0.6;
     
@@ -291,29 +313,83 @@ function createVectorField() {
             const z = j * spacing;
             const y = 0;
             
-            const v = getField(x, y, z);
-            const mag = Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+            addVectorArrow(x, y, z, 0x06b6d4, 0.5);
+        }
+    }
+}
+
+function createSurfaceVectors() {
+    const radius = 1.5;
+    const numRadial = 4;
+    const numAngular = 12;
+    
+    for (let r = 0; r <= numRadial; r++) {
+        const rad = (r / numRadial) * radius;
+        const numAtRadius = r === 0 ? 1 : numAngular;
+        
+        for (let a = 0; a < numAtRadius; a++) {
+            const theta = (a / numAtRadius) * Math.PI * 2;
+            const x = rad * Math.cos(theta);
+            const z = rad * Math.sin(theta);
             
-            if (mag > 0.01) {
-                const dir = new THREE.Vector3(v.x, v.y, v.z).normalize();
-                const length = Math.min(mag * 0.3, 0.4);
+            // Get y position based on surface type
+            let y = 0;
+            if (surfaceType === 'hemisphere') {
+                const rNorm = rad / radius;
+                y = -Math.sqrt(Math.max(0, 1 - rNorm * rNorm)) * radius;
+            } else if (surfaceType === 'paraboloid') {
+                y = -rad * rad * 0.3;
+            } else if (surfaceType === 'wavy') {
+                y = 0.2 * Math.sin(3 * theta) * (rad / radius);
+            }
+            
+            addVectorArrow(x, y, z, 0x22d3ee, 0.7);
+        }
+    }
+}
+
+function createVolumeVectors() {
+    const gridSize = 4;
+    const spacing = 0.8;
+    const yLevels = [-0.8, 0, 0.8];
+    
+    for (const y of yLevels) {
+        const opacity = y === 0 ? 0.6 : 0.3;
+        const color = y === 0 ? 0x06b6d4 : 0x3b82f6;
+        
+        for (let i = -gridSize/2; i <= gridSize/2; i++) {
+            for (let j = -gridSize/2; j <= gridSize/2; j++) {
+                const x = i * spacing;
+                const z = j * spacing;
                 
-                const arrow = new THREE.ArrowHelper(
-                    dir,
-                    new THREE.Vector3(x, y, z),
-                    length,
-                    0x06b6d4,
-                    0.1,
-                    0.05
-                );
-                arrow.line.material.transparent = true;
-                arrow.line.material.opacity = 0.5;
-                vectorArrows.add(arrow);
+                addVectorArrow(x, y, z, color, opacity);
             }
         }
     }
+}
+
+function addVectorArrow(x, y, z, color, opacity) {
+    const v = getField(x, y, z);
+    const mag = Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
     
-    scene.add(vectorArrows);
+    if (mag > 0.01) {
+        const dir = new THREE.Vector3(v.x, v.y, v.z).normalize();
+        const length = Math.min(mag * 0.3, 0.4);
+        
+        const arrow = new THREE.ArrowHelper(
+            dir,
+            new THREE.Vector3(x, y, z),
+            length,
+            color,
+            0.08,
+            0.04
+        );
+        arrow.line.material.transparent = true;
+        arrow.line.material.opacity = opacity;
+        arrow.cone.material.transparent = true;
+        arrow.cone.material.opacity = opacity;
+        vectorArrows.add(arrow);
+    }
 }
 
 function getField(x, y, z) {
@@ -412,6 +488,8 @@ function animate() {
 
 function onWindowResize() {
     const container = document.getElementById('stokes-demo');
+    if (!container) return;
+    
     const width = container.offsetWidth;
     const height = 400;
     
@@ -420,37 +498,45 @@ function onWindowResize() {
     renderer.setSize(width, height);
 }
 
-// Control functions
-function updateSurface(type) {
+// Control functions - expose to global scope for HTML onclick handlers
+window.updateSurface = function(type) {
     surfaceType = type;
     createSurface();
     calculateIntegrals();
-}
+};
 
-function updateField(type) {
+window.updateField = function(type) {
     fieldType = type;
     createVectorField();
     calculateIntegrals();
-}
+};
 
-function resetCamera() {
+window.resetCamera = function() {
     camera.position.set(3, 3, 3);
     camera.lookAt(0, 0, 0);
     controls.reset();
-}
+};
 
-function resetDemo() {
+window.updateVectorDisplay = function(mode) {
+    vectorDisplayMode = mode;
+    createVectorField();
+};
+
+window.resetDemo = function() {
     surfaceType = 'flat';
     fieldType = 'rotation';
+    vectorDisplayMode = 'volume';
     
     document.getElementById('surface-type').value = 'flat';
     document.getElementById('field-type').value = 'rotation';
+    const vectorSelect = document.getElementById('vector-display');
+    if (vectorSelect) vectorSelect.value = 'volume';
     
     createSurface();
     createVectorField();
     calculateIntegrals();
-    resetCamera();
-}
+    window.resetCamera();
+};
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
@@ -458,5 +544,3 @@ if (document.readyState === 'loading') {
 } else {
     init();
 }
-
-
